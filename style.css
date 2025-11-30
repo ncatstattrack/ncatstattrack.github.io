@@ -1,0 +1,62 @@
+a {
+    font-family: Arial;
+}
+
+nav a:visited {
+    color: blue;
+}
+
+h1 {
+    font-family: Arial;
+}
+
+.simple-text {
+    width: 725px;
+    font-family: Arial;
+}
+
+.compare-text {
+    font-family: Arial;
+    text-align: center;
+    vertical-align: top;
+}
+
+.fake-header {
+    font-size: large;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.little-br {
+    height: 5px;
+}
+
+.compare-table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.compare-line {
+  border-left: 3px solid black;
+  height: 500px;
+  position: relative;
+  left: 50%;
+  margin-left: -3px;
+  margin-right: 300px;
+  top: 0;
+}
+
+footer {
+    box-shadow: 0 50vh 0 50vh #242841;
+    background-color: #242841;
+    color: aquamarine;
+    font-family: Arial;
+}
+
+footer a {
+    color: cornflowerblue;
+}
+
+footer a:visited {
+    color: cornflowerblue;
+}

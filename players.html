@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>StatTrack | Players</title>
+    <link rel="stylesheet" href="style.css">
+    <script src = "api.js"></script>
+    <script src = "script.js"></script>
+
+</head>
+<body onload="getPlayerInfo() ">
+    
+    <!-- Main header-->
+    <h1>StatTrack</h1>
+
+    <!-- Naviagtion -->
+    <nav>
+        <a href="index.html">Home</a> |
+        <a href=# onclick="return false;">Players</a> |
+        <a href="thestats.html">The Stats</a>
+    </nav>
+    <hr>
+
+    <!-- Loading message -->
+    <div class="simple-text" id="waiting-message" style="display: inline;">
+        <p>Loading player info...</p>
+    </div>
+
+    <!-- Search area -->
+    <div class="simple-text" id="search-find-player-stats" style="display: none;">
+        <table>
+            <tr>
+                <td>
+                    <label for="find-player-list">Player:</label>
+                    <input list="find-player-list" name="find-player-input" id="find-player-input"></input>
+                    <datalist id="find-player-list"></datalist>
+                    <button onclick="switchPlayerStatMode()"><strong>+</strong></button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table>
+                        <tr>
+                            <td>
+                                <input type="radio" id="find-career" name="find-career-season" value="career" checked>
+                                <label for="find-career">Career Stats</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="find-season" name="find-career-season" value="season">
+                                <label for="find-season">Season Stats</label>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr id="find-season-range-block" style="display: none;">
+                <td>
+                    <label for="find-from-input">From:</label>
+                    <input type="text" placeholder="Ex. 2015-16" name="find-from-input" id="find-from-input" value=""></input>
+                    <label for="find-to-input">To:</label>
+                    <input type="text" placeholder="Ex. 2018-19" name="find-to-input" id="find-to-input" value=""></input>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Season Type:<br>
+                    <table>
+                        <tr>
+                            <td>
+                                <input type="radio" id="find-type-all" name="find-season-type" value="all" checked>
+                                <label for="find-type-all">All Seasons</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="find-type-regular" name="find-season-type" value="RegularSeason">
+                                <label for="find-type-regular">Regular Season</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="find-type-post" name="find-season-type" value="PostSeason">
+                                <label for="find-type-post">Post Season</label><br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="radio" id="find-type-allstar" name="find-season-type" value="AllStarSeason">
+                                <label for="find-type-allstar">All-Star Season</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="find-type-college" name="find-season-type" value="CollegeSeason">
+                                <label for="find-type-college">College Season</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="find-type-showcase" name="find-season-type" value="ShowcaseSeason">
+                                <label for="find-type-showcase">Showcase Season</label>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <br>
+        <button onclick="getPlayerStats()">Get Data</button>
+        <br>
+    </div>
+
+    <div class="simple-text" id="search-compare-player-stats" style="display: none;">
+        <table>
+            <tr>
+                <td>
+                    <label for="compare-player-list-1">First Player:</label>
+                    <input list="compare-player-list-1" name="compare-player-input-1" id="compare-player-input-1"></input>
+                    <datalist id="compare-player-list-1"></datalist>
+                </td>
+                <td>
+                    <label for="compare-player-list-2">Second Player:</label>
+                    <input list="compare-player-list-2" name="compare-player-input-2" id="compare-player-input-2"></input>
+                    <datalist id="compare-player-list-2"></datalist>
+                    <button onclick="switchPlayerStatMode()"><strong>-</strong></button>
+                </td>
+            </tr>
+            <tr id="compare-season-range-block" style="display: none;">
+                <td>
+                    <label for="compare-from-input-1">From:</label>
+                    <input type="text" placeholder="Ex. 2015-16" name="compare-from-input-1" id="compare-from-input-1" value=""></input>
+                    <div class="little-br"></div>
+                    <label for="compare-to-input-1">To:</label>
+                    <input type="text" placeholder="Ex. 2018-19" name="compare-to-input-1" id="compare-to-input-1" value=""></input>
+                </td>
+                <td>
+                    <label for="compare-from-input-2">From:</label>
+                    <input type="text" placeholder="Ex. 2015-16" name="compare-from-input-2" id="compare-from-input-2" value=""></input>
+                    <div class="little-br"></div>
+                    <label for="compare-to-input-2">To:</label>
+                    <input type="text" placeholder="Ex. 2018-19" name="compare-to-input-2" id="compare-to-input-2" value=""></input>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table>
+                        <tr>
+                            <td>
+                                <input type="radio" id="compare-career" name="compare-career-season" value="career" checked>
+                                <label for="compare-career">Career Stats</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="compare-season" name="compare-career-season" value="season">
+                                <label for="compare-season">Season Stats</label>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td>
+                    Season Type:<br>
+                    <table>
+                        <tr>
+                            <td>
+                                <input type="radio" id="compare-type-all" name="compare-season-type" value="all" checked>
+                                <label for="compare-type-all">All Seasons</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="compare-type-regular" name="compare-season-type" value="RegularSeason">
+                                <label for="compare-type-regular">Regular Season</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="compare-type-post" name="compare-season-type" value="PostSeason">
+                                <label for="compare-type-post">Post Season</label><br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="radio" id="compare-type-allstar" name="compare-season-type" value="AllStarSeason">
+                                <label for="compare-type-allstar">All-Star Season</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="compare-type-college" name="compare-season-type" value="CollegeSeason">
+                                <label for="compare-type-college">College Season</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="compare-type-showcase" name="compare-season-type" value="ShowcaseSeason">
+                                <label for="compare-type-showcase">Showcase Season</label>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <br>
+        <button onclick="getPlayerStats()">Get Data</button>
+        <br>
+    </div>
+
+    <!-- Display area -->
+    <hr>
+    <div class="simple-text" id="display-find-player-stats" style="display: none;">
+    </div>
+
+    <div id="display-compare-player-stats" style="display: none;">
+    </div>
+</body>
+</html>
