@@ -95,6 +95,7 @@ function switchPlayerStatMode() {
 async function getPlayerStats() {
 
     // Setup
+    manageFooterBuffer(true);
     if (mode === "find") {
         document.getElementById("display-find-player-stats").innerHTML = "Loading...";
     } else if (mode === "compare") {
@@ -315,6 +316,7 @@ function compilePlayerStatistics(careerSeason, seasonType, playerName1, playerNa
             return `<h2>${playerName1}</h2>No Data To Show`;
         }
         innerHTML = `<h2>${playerName1}</h2>` + innerHTML;
+        manageFooterBuffer(false);
         return innerHTML;
 
     // Find seasons 
@@ -376,6 +378,7 @@ function compilePlayerStatistics(careerSeason, seasonType, playerName1, playerNa
             return `<h2>${playerName1}</h2>No Data To Show`;
         }
         innerHTML = `<h2>${playerName1}</h2>` + innerHTML;
+        manageFooterBuffer(false);
         return innerHTML;
 
     // Compare careers
@@ -428,6 +431,7 @@ function compilePlayerStatistics(careerSeason, seasonType, playerName1, playerNa
                 statsHTML[s] = `<h2>${playerName[s]}</h2>No Data To Show`;
             } else {
                 statsHTML[s] = `<h2>${playerName[s]}</h2>` + statsHTML[s];
+                manageFooterBuffer(false);
             }
         }
         let innerHTML = `<table class="compare-table"><tr>
@@ -505,6 +509,7 @@ function compilePlayerStatistics(careerSeason, seasonType, playerName1, playerNa
                 statsHTML[s] = `<h2>${playerName[s]}</h2>No Data To Show`;
             } else {
                 statsHTML[s] = `<h2>${playerName[s]}</h2>` + statsHTML[s];
+                manageFooterBuffer(false);
             }
         }
         let innerHTML = `<table class="compare-table"><tr>
@@ -518,4 +523,11 @@ function compilePlayerStatistics(careerSeason, seasonType, playerName1, playerNa
 
 }
 
+function manageFooterBuffer(activate) {
+    if (activate) {
+        document.getElementById("footer-buffer").style.display = "block";
+    } else {
+        document.getElementById("footer-buffer").style.display = "none";
+    }
+}
 

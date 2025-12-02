@@ -1,13 +1,52 @@
-a {
+
+header {
+    box-shadow: 0 -5vh 0 7vh darkorange;
+    background-color: darkorange;
+    box-sizing: border-box;
+    color: white;
     font-family: Arial;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+nav {
+    box-shadow: 0 -0.5vh 0 1.1vh orange;
+    background-color: orange;
+    
+}
+
+nav a {
+    text-decoration: none;
+    color: #242841;
+    font-family: Arial;
+    font-size: 20px;
 }
 
 nav a:visited {
-    color: blue;
+    color: #242841;
 }
 
-h1 {
+nav a:hover {
+    color: white;
+}
+
+#footer-buffer {
+    height: 50vh;
+}
+
+footer {
+    box-shadow: 0 50vh 0 50vh #242841;
+    background-color: #242841;
+    color: aquamarine;
     font-family: Arial;
+}
+
+footer a {
+    color: cornflowerblue;
+}
+
+footer a:visited {
+    color: cornflowerblue;
 }
 
 .simple-text {
@@ -44,19 +83,4 @@ h1 {
   margin-left: -3px;
   margin-right: 300px;
   top: 0;
-}
-
-footer {
-    box-shadow: 0 50vh 0 50vh #242841;
-    background-color: #242841;
-    color: aquamarine;
-    font-family: Arial;
-}
-
-footer a {
-    color: cornflowerblue;
-}
-
-footer a:visited {
-    color: cornflowerblue;
 }

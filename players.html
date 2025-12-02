@@ -10,19 +10,34 @@
 </head>
 <body onload="getPlayerInfo() ">
     
-    <!-- Main header-->
-    <h1>StatTrack</h1>
+    <!-- Site Header -->
+    <header>
+        <table>
+            <tr>
+                <td>
+                    <img id="header-image" src="stattrack_logo.png" alt="StatTrack Logo" width="50" height="50">
+                </td>
+                <td>
+                    <h1>StatTrack</h1>
+                </td>
+            </tr>
+        </table>
+    </header>
 
-    <!-- Naviagtion -->
+    <!-- Navigation -->
     <nav>
         <a href="index.html">Home</a> |
         <a href=# onclick="return false;">Players</a> |
         <a href="thestats.html">The Stats</a>
     </nav>
-    <hr>
+
+    <!-- Page Header -->
+    <div class="simple-text">
+        <h2>Player Statistics</h2>
+    </div>
 
     <!-- Loading message -->
-    <div class="simple-text" id="waiting-message" style="display: inline;">
+    <div class="simple-text" id="waiting-message" style="display: block;">
         <p>Loading player info...</p>
     </div>
 
@@ -198,8 +213,21 @@
     <hr>
     <div class="simple-text" id="display-find-player-stats" style="display: none;">
     </div>
-
     <div id="display-compare-player-stats" style="display: none;">
     </div>
+    <br><br>
+    <div id="footer-buffer">
+    </div>
+
+    <!-- Site Footer -->
+    <footer>
+        <div class="little-br"></div>
+        <p>
+            Have Concerns? Contact Us!<br>
+            <a href="mailto:ncatstattrack@gmail.com">Send Email</a> (ncatstattrack@gmail.com)
+        </p>
+    </footer>
+
+
 </body>
 </html>
