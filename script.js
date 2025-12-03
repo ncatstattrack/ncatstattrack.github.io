@@ -69,6 +69,7 @@ async function getPlayerInfo() {
 // Switches modes for player
 function switchPlayerStatMode() {
 
+    manageFooterBuffer(true);
     if (mode === "find") {
         
         document.getElementById("display-find-player-stats").style.display = "none";
