@@ -4,7 +4,8 @@ let mode = null;
 
 // Caching Variables
 let playerNames = null;
-let playerIDToName = null;
+let playerNameToID = null;
+let teamNames = null;
 let teamAbbToName = null;
 
 
@@ -151,7 +152,7 @@ async function getPlayerStats() {
         }
 
         // Call for stats
-        const stats = await callPlayerStats(playerIDToName.get(playerName), 0);
+        const stats = await callPlayerStats(playerNameToID.get(playerName), 0);
 
         // Account for fail calls
         if (stats === "FAIL") {
@@ -236,8 +237,8 @@ async function getPlayerStats() {
         }
 
         // Call for stats
-        const stats1 = await callPlayerStats(playerIDToName.get(playerName1), 0);
-        const stats2 = await callPlayerStats(playerIDToName.get(playerName2), 0);
+        const stats1 = await callPlayerStats(playerNameToID.get(playerName1), 0);
+        const stats2 = await callPlayerStats(playerNameToID.get(playerName2), 0);
 
         // Account for fail calls
         if (stats1 === "FAIL" || stats2 === "FAIL") {
@@ -523,6 +524,57 @@ function compilePlayerStatistics(careerSeason, seasonType, playerName1, playerNa
     }
 
 }
+
+// Get team info
+async function getTeamInfo() {
+
+    // Call for team info
+    await callTeamInfo();
+
+    // Make player input list and allow search
+    let teamInputList = "";
+    for (let i = 0; i < teamNames.length; i++) {
+        teamInputList += (`<option value="${teamNames[i]}"></option>`);
+    }
+    document.getElementById("waiting-message").style.display = "none";
+    document.getElementById("find-player-list").innerHTML = playerInputList;
+    document.getElementById("compare-player-list-1").innerHTML = playerInputList;
+    document.getElementById("compare-player-list-2").innerHTML = playerInputList;
+    mode = "compare";
+    switchTeamStatMode();
+
+}
+
+// Switches mode for team
+function switchTeamStatMode() {
+
+    manageFooterBuffer(true);
+    if (mode === "find") {
+        
+        document.getElementById("display-find-player-stats").style.display = "none";
+        document.getElementById("display-find-player-stats").innerHTML = "";
+        document.getElementById("search-find-player-stats").style.display = "none";
+        document.getElementById("display-compare-player-stats").style.display = "block";
+        document.getElementById("search-compare-player-stats").style.display = "block";
+        mode = "compare";
+
+    } else if (mode === "compare") {
+
+        document.getElementById("display-compare-player-stats").style.display = "none";
+        document.getElementById("display-compare-player-stats").innerHTML = "";
+        document.getElementById("search-compare-player-stats").style.display = "none";
+        document.getElementById("display-find-player-stats").style.display = "block";
+        document.getElementById("search-find-player-stats").style.display = "block";
+        mode = "find";
+
+    }
+
+}
+
+// Get stats for team
+async function getTeamStats() {
+
+} 
 
 function manageFooterBuffer(activate) {
     if (activate) {

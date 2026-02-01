@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>StatTrack | Teams</title>
+    <link rel="stylesheet" href="style.css">
+    <script src = "api.js"></script>
+    <script src = "script.js"></script>
+
+</head>
+<body onload="getPlayerInfo() ">
+    
+    <!-- Site Header -->
+    <header>
+        <table>
+            <tr>
+                <td>
+                    <img id="header-image" src="stattrack_logo.png" alt="StatTrack Logo" width="50" height="50">
+                </td>
+                <td>
+                    <h1>StatTrack</h1>
+                </td>
+            </tr>
+        </table>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html">Home</a> |
+        <a href="players.html">Players</a> |
+        <a href=# onclick="return false;">Teams</a> |
+        <a href="thestats.html">The Stats</a> |
+        <a href="aboutus.html">About Us</a>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="simple-text">
+        <h2>Team Statistics</h2>
+    </div>
+
+    <!-- Loading message -->
+    <div class="simple-text" id="waiting-message" style="display: block;">
+        <p>Loading team info...</p>
+    </div>
+
+    <!-- Search area -->
+    <div class="simple-text" id="search-find-team-stats" style="display: none;">
+        <table>
+            <tr>
+                <td>
+                    <label for="find-team-list">Team:</label>
+                    <input list="find-team-list" name="find-team-input" id="find-team-input"></input>
+                    <datalist id="find-team-list"></datalist>
+                    <button onclick="switchTeamStatMode()"><strong>+</strong></button>
+                </td>
+            </tr>
+        </table>
+
+        <br>
+        <button onclick="getTeamStats()">Get Data</button>
+        <br>
+    </div>
+
+    <div class="simple-text" id="search-compare-team-stats" style="display: none;">
+        <table>
+            <td>
+                <label for="compare-team-list-1">First Team:</label>
+                <input list="compare-team-list-1" name="compare-team-input-1" id="compare-team-input-1"></input>
+                <datalist id="compare-team-list-1"></datalist>
+            </td>
+            <td>
+                <label for="compare-team-list-2">Second Team:</label>
+                <input list="compare-team-list-2" name="compare-team-input-2" id="compare-team-input-2"></input>
+                <datalist id="compare-team-list-2"></datalist>
+                <button onclick="switchTeamStatMode()"><strong>-</strong></button>
+            </td>
+        </table>
+
+        <br>
+        <button onclick="getTeamStats()">Get Data</button>
+        <br>
+    </div>
+
+    <!-- Display area -->
+    <hr>
+    <div class="simple-text" id="display-find-player-stats" style="display: none;">
+    </div>
+    <div id="display-compare-player-stats" style="display: none;">
+    </div>
+    <br><br>
+    <div id="footer-buffer">
+    </div>
+
+    <!-- Site Footer -->
+    <footer>
+        <div class="little-br"></div>
+        <p>
+            Have Concerns? Contact Us!<br>
+            <a href="mailto:ncatstattrack@gmail.com">Send Email</a> (ncatstattrack@gmail.com)
+        </p>
+    </footer>
+
+
+</body>
+</html>
