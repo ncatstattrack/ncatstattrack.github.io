@@ -51,7 +51,7 @@
                     <label for="find-player-list">Player:</label>
                     <input list="find-player-list" name="find-player-input" id="find-player-input"></input>
                     <datalist id="find-player-list"></datalist>
-                    <button onclick="switchPlayerStatMode()"><strong>+</strong></button>
+                    <button onclick="switchStatMode()"><strong>+</strong></button>
                 </td>
             </tr>
             <tr>
@@ -132,23 +132,7 @@
                     <label for="compare-player-list-2">Second Player:</label>
                     <input list="compare-player-list-2" name="compare-player-input-2" id="compare-player-input-2"></input>
                     <datalist id="compare-player-list-2"></datalist>
-                    <button onclick="switchPlayerStatMode()"><strong>-</strong></button>
-                </td>
-            </tr>
-            <tr id="compare-season-range-block" style="display: none;">
-                <td>
-                    <label for="compare-from-input-1">From:</label>
-                    <input type="text" placeholder="Ex. 2015-16" name="compare-from-input-1" id="compare-from-input-1" value=""></input>
-                    <div class="little-br"></div>
-                    <label for="compare-to-input-1">To:</label>
-                    <input type="text" placeholder="Ex. 2018-19" name="compare-to-input-1" id="compare-to-input-1" value=""></input>
-                </td>
-                <td>
-                    <label for="compare-from-input-2">From:</label>
-                    <input type="text" placeholder="Ex. 2015-16" name="compare-from-input-2" id="compare-from-input-2" value=""></input>
-                    <div class="little-br"></div>
-                    <label for="compare-to-input-2">To:</label>
-                    <input type="text" placeholder="Ex. 2018-19" name="compare-to-input-2" id="compare-to-input-2" value=""></input>
+                    <button onclick="switchStatMode()"><strong>-</strong></button>
                 </td>
             </tr>
             <tr>
@@ -165,6 +149,22 @@
                             </td>
                         </tr>
                     </table>
+                </td>
+            </tr>
+            <tr id="compare-season-range-block" style="display: none;">
+                <td>
+                    <label for="compare-from-input-1">From:</label>
+                    <input type="text" placeholder="Ex. 2015-16" name="compare-from-input-1" id="compare-from-input-1" value=""></input>
+                    <div class="little-br"></div>
+                    <label for="compare-to-input-1">To:</label>
+                    <input type="text" placeholder="Ex. 2018-19" name="compare-to-input-1" id="compare-to-input-1" value=""></input>
+                </td>
+                <td>
+                    <label for="compare-from-input-2">From:</label>
+                    <input type="text" placeholder="Ex. 2015-16" name="compare-from-input-2" id="compare-from-input-2" value=""></input>
+                    <div class="little-br"></div>
+                    <label for="compare-to-input-2">To:</label>
+                    <input type="text" placeholder="Ex. 2018-19" name="compare-to-input-2" id="compare-to-input-2" value=""></input>
                 </td>
             </tr>
         </table>
@@ -215,7 +215,7 @@
     <hr>
     <div class="simple-text" id="display-find-player-stats" style="display: none;">
     </div>
-    <div id="display-compare-player-stats" style="display: none;">
+    <div class="just-arial" id="display-compare-player-stats" style="display: none;">
     </div>
     <br><br>
     <div id="footer-buffer">

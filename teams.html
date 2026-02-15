@@ -8,7 +8,7 @@
     <script src = "script.js"></script>
 
 </head>
-<body onload="getPlayerInfo() ">
+<body onload="getTeamInfo() ">
     
     <!-- Site Header -->
     <header>
@@ -51,7 +51,31 @@
                     <label for="find-team-list">Team:</label>
                     <input list="find-team-list" name="find-team-input" id="find-team-input"></input>
                     <datalist id="find-team-list"></datalist>
-                    <button onclick="switchTeamStatMode()"><strong>+</strong></button>
+                    <button onclick="switchStatMode()"><strong>+</strong></button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table>
+                        <tr>
+                            <td>
+                                <input type="radio" id="find-career" name="find-career-season" value="career" checked>
+                                <label for="find-career">All-Time Stats</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="find-season" name="find-career-season" value="season">
+                                <label for="find-season">Season Stats</label>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr id="find-season-range-block" style="display: none;">
+                <td>
+                    <label for="find-from-input">From:</label>
+                    <input type="text" placeholder="Ex. 2015-16" name="find-from-input" id="find-from-input" value=""></input>
+                    <label for="find-to-input">To:</label>
+                    <input type="text" placeholder="Ex. 2018-19" name="find-to-input" id="find-to-input" value=""></input>
                 </td>
             </tr>
         </table>
@@ -63,17 +87,51 @@
 
     <div class="simple-text" id="search-compare-team-stats" style="display: none;">
         <table>
-            <td>
-                <label for="compare-team-list-1">First Team:</label>
-                <input list="compare-team-list-1" name="compare-team-input-1" id="compare-team-input-1"></input>
-                <datalist id="compare-team-list-1"></datalist>
-            </td>
-            <td>
-                <label for="compare-team-list-2">Second Team:</label>
-                <input list="compare-team-list-2" name="compare-team-input-2" id="compare-team-input-2"></input>
-                <datalist id="compare-team-list-2"></datalist>
-                <button onclick="switchTeamStatMode()"><strong>-</strong></button>
-            </td>
+            <tr>
+                <td>
+                    <label for="compare-team-list-1">First Team:</label>
+                    <input list="compare-team-list-1" name="compare-team-input-1" id="compare-team-input-1"></input>
+                    <datalist id="compare-team-list-1"></datalist>
+                </td>
+                <td>
+                    <label for="compare-team-list-2">Second Team:</label>
+                    <input list="compare-team-list-2" name="compare-team-input-2" id="compare-team-input-2"></input>
+                    <datalist id="compare-team-list-2"></datalist>
+                    <button onclick="switchStatMode()"><strong>-</strong></button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table>
+                        <tr>
+                            <td>
+                                <input type="radio" id="compare-career" name="compare-career-season" value="career" checked>
+                                <label for="compare-career">All-Time Stats</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="compare-season" name="compare-career-season" value="season">
+                                <label for="compare-season">Season Stats</label>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr id="compare-season-range-block" style="display: none;">
+                <td>
+                    <label for="compare-from-input-1">From:</label>
+                    <input type="text" placeholder="Ex. 2015-16" name="compare-from-input-1" id="compare-from-input-1" value=""></input>
+                    <div class="little-br"></div>
+                    <label for="compare-to-input-1">To:</label>
+                    <input type="text" placeholder="Ex. 2018-19" name="compare-to-input-1" id="compare-to-input-1" value=""></input>
+                </td>
+                <td>
+                    <label for="compare-from-input-2">From:</label>
+                    <input type="text" placeholder="Ex. 2015-16" name="compare-from-input-2" id="compare-from-input-2" value=""></input>
+                    <div class="little-br"></div>
+                    <label for="compare-to-input-2">To:</label>
+                    <input type="text" placeholder="Ex. 2018-19" name="compare-to-input-2" id="compare-to-input-2" value=""></input>
+                </td>
+            </tr>
         </table>
 
         <br>
@@ -83,9 +141,9 @@
 
     <!-- Display area -->
     <hr>
-    <div class="simple-text" id="display-find-player-stats" style="display: none;">
+    <div class="just-arial" id="display-find-team-stats" style="display: none;">
     </div>
-    <div id="display-compare-player-stats" style="display: none;">
+    <div class="just-arial" id="display-compare-team-stats" style="display: none;">
     </div>
     <br><br>
     <div id="footer-buffer">

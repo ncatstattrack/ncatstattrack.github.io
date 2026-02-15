@@ -84,11 +84,14 @@ async function callTeamInfo() {
         const data = await response.json();
         teamNames = [];
         let abbToName = [];
+        let nameToID = [];
         for (i = 0; i < data.length; i++) {
             teamNames.push([data[i][1]]);
             abbToName.push([data[i][2], data[i][1]]);
+            nameToID.push([data[i][1], data[i][0]]);
         }
         teamAbbToName = new Map(abbToName);
+        teamNameToID = new Map(nameToID);
     } catch (error) {
         console.error('Error fetching data:', error);
     }
@@ -96,7 +99,7 @@ async function callTeamInfo() {
 }
 
 // Gets team stats
-async function callTeamStats(id, counter) {
+async function callTeamStats(id, failCounter) {
 
     try {
         const response = await fetch(`https://testing-75ef.onrender.com/team-stats?id=${id}`,{
