@@ -31,7 +31,7 @@ nav a:hover {
 }
 
 #footer-buffer {
-    height: 100vh;
+    height: 500px;
 }
 
 footer {
@@ -49,16 +49,12 @@ footer a:visited {
     color: cornflowerblue;
 }
 
-.just-arial {
-    font-family: Arial;
-}
-
 .simple-text {
     width: 725px;
     font-family: Arial;
 }
 
-.compare-text {
+.stat-text {
     font-family: Arial;
     text-align: center;
     vertical-align: top;
@@ -74,6 +70,11 @@ footer a:visited {
     height: 5px;
 }
 
+.stat-table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .season-table {
     border: 1px solid black;
 }
@@ -82,9 +83,28 @@ footer a:visited {
     border: 1px solid black;
 }
 
-.compare-table {
-    margin-left: auto;
-    margin-right: auto;
+.season-arrow {
+    position: relative;
+    width: 100px;
+}
+
+.season-arrow button {
+    position: absolute;
+    top: 0;
+}
+
+.season-key {
+    text-align: left;
+}
+
+.season-color-1 {
+    background-color: antiquewhite;
+    color: black;
+}
+
+.season-color-2 {
+    background-color: coral;
+    color: black;
 }
 
 .compare-line {

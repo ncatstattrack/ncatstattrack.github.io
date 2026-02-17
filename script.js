@@ -2,6 +2,9 @@
 // Global Variables
 let mode = null;
 let subject = null;
+let numSeasonTables = null;
+let currentSeasonTable = null;
+let seasonTables = null;
 
 // Caching Variables
 let playerNames = null;
@@ -74,14 +77,14 @@ async function getPlayerInfo() {
 async function getPlayerStats() {
 
     // Setup
-    manageFooterBuffer(true);
-    document.getElementById("display-" + mode + "-player-stats").innerHTML = "Loading...";
+    manageFooterBuffer(500);
+    document.getElementById("display-player-stats").innerHTML = "Loading...";
     let innerHTML = "";
 
     // Get inputs
     let inputs = getInput(mode == "find" ? 1 : 2, true, mode == "find" ? 1 : 2, true);
     if (inputs[0] !== "") {
-        document.getElementById("display-" + mode + "-player-stats").innerHTML = ("Please fix the following errors:" + inputs[0]);
+        document.getElementById("display-player-stats").innerHTML = ("Please fix the following errors:" + inputs[0]);
         return;
     }
 
@@ -89,19 +92,20 @@ async function getPlayerStats() {
     const stats1 = await callPlayerStats(playerNameToID.get(inputs[1][0]), 0);
     const stats2 = mode == "find" ? null : await callPlayerStats(playerNameToID.get(inputs[1][1]), 0);
     if (stats1 === "FAIL" || (mode === "compare" && stats2 === "FAIL")) {
-        document.getElementById("display-" + mode + "-player-stats").innerHTML = "Failed to retrieve data";
+        document.getElementById("display-player-stats").innerHTML = "Failed to retrieve data";
         return;
     }
 
     // Compile and display stats
     innerHTML = mode == "find" ? innerHTML = compilePlayerStatistics(inputs[1][0], null, inputs[2], inputs[3][0], inputs[4][0], null, null, inputs[5], stats1, null)
         : compilePlayerStatistics(inputs[1][0], inputs[1][1], inputs[2], inputs[3][0], inputs[4][0], inputs[3][1], inputs[4][1], inputs[5], stats1, stats2);
-    document.getElementById("display-" + mode + "-player-stats").innerHTML = innerHTML;
+    document.getElementById("display-player-stats").innerHTML = innerHTML;
 
     // Adjust comparison line if needed
     if (mode === "compare") {
-        document.getElementById("compare-line").style.height = document.getElementById("display-compare-player-stats").offsetHeight.toString() + "px";
+        document.getElementById("compare-line").style.height = document.getElementById("display-player-stats").offsetHeight.toString() + "px";
     }
+    manageFooterBuffer(50 - document.getElementById("display-player-stats").offsetHeight);
     
 }
 
@@ -136,11 +140,7 @@ function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, 
         for (let s = 0; s < (mode == "find" ? 1 : 2); s++) {
             for (let i = 0; i < stats[s].resultSets.length; i++) {
                 let statSubset = stats[s].resultSets[i];
-                if ((statSubset.name == "CareerTotalsRegularSeason" || statSubset.name == "CareerTotalsPostSeason"
-                    || statSubset.name == "CareerTotalsAllStarSeason" || statSubset.name == "CareerTotalsCollegeSeason"
-                    || statSubset.name == "CareerTotalsShowcaseSeason")
-                    && statSubset.rowSet.length != 0
-                    && (seasonType === "all" || statSubset.name.indexOf(seasonType) != -1)
+                if (statSubset.name.indexOf("Career") && statSubset.rowSet.length != 0 && (seasonType === "all" || statSubset.name.indexOf(seasonType) != -1)
                 ){
                     statsHTML[s] += `<h3>${headerMap.get(statSubset.name)}</h3>`;
                     statsHTML[s] += `<p>Games Played: ${statSubset.rowSet[0][3]}</p>`;
@@ -178,11 +178,7 @@ function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, 
         for (let s = 0; s < (mode == "find" ? 1 : 2); s++) {
             for (let i = 0; i < stats[s].resultSets.length; i++) {
                 let statSubset = stats[s].resultSets[i];
-                if ((statSubset.name == "SeasonTotalsRegularSeason" || statSubset.name == "SeasonTotalsPostSeason"
-                    || statSubset.name == "SeasonTotalsAllStarSeason" || statSubset.name == "SeasonTotalsCollegeSeason"
-                    || statSubset.name == "SeasonTotalsShowcaseSeason")
-                    && statSubset.rowSet.length != 0
-                    && (seasonType == "all" || statSubset.name.indexOf(seasonType) != -1)
+                if (statSubset.name.indexOf("Season") != -1 && statSubset.rowSet.length != 0 && (seasonType == "all" || statSubset.name.indexOf(seasonType) != -1)
                 ){
                     let tempHTML = `<h3>${headerMap.get(statSubset.name)}</h3>`;
                     for (let season = 0; season < statSubset.rowSet.length; season++) {
@@ -238,7 +234,6 @@ function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, 
             statsHTML[s] = `<h2>${playerName[s]}</h2>No Data To Show`;
         } else {
             statsHTML[s] = `<h2>${playerName[s]}</h2>` + statsHTML[s];
-            manageFooterBuffer(false);
         }
     }
     let innerHTML = mode == "find" ? statsHTML[0] : `<table class="compare-table"><tr>
@@ -275,14 +270,14 @@ async function getTeamInfo() {
 async function getTeamStats() {
 
     // Setup
-    manageFooterBuffer(true);
-    document.getElementById("display-" + mode + "-team-stats").innerHTML = "Loading...";
+    manageFooterBuffer(500);
+    document.getElementById("display-team-stats").innerHTML = "Loading...";
     let innerHTML = "";
 
     // Get inputs
     let inputs = getInput(mode == "find" ? 1 : 2, true, mode == "find" ? 1 : 2, false);
     if (inputs[0] !== "") {
-        document.getElementById("display-" + mode + "-team-stats").innerHTML = ("Please fix the following errors:" + inputs[0]);
+        document.getElementById("display-team-stats").innerHTML = ("Please fix the following errors:" + inputs[0]);
         return;
     }
 
@@ -290,29 +285,34 @@ async function getTeamStats() {
     const stats1 = await callTeamStats(teamNameToID.get(inputs[1][0]), 0);
     const stats2 = mode == "find" ? null : await callTeamStats(teamNameToID.get(inputs[1][1]), 0);
     if (stats1 === "FAIL" || (mode === "compare" && stats2 === "FAIL")) {
-        document.getElementById("display-" + mode + "-team-stats").innerHTML = "Failed to retrieve data";
+        document.getElementById("display-team-stats").innerHTML = "Failed to retrieve data";
         return;
     }
 
-    // Compile and display stats
+    // Compile stats
     innerHTML = mode == "find" ? innerHTML = compileTeamStatistics(inputs[1][0], null, inputs[2], inputs[3][0], inputs[4][0], null, null, stats1, null)
         : compileTeamStatistics(inputs[1][0], inputs[1][1], inputs[2], inputs[3][0], inputs[4][0], inputs[3][1], inputs[4][1], stats1, stats2);
-    document.getElementById("display-" + mode + "-team-stats").innerHTML = innerHTML;
+    document.getElementById("display-team-stats").innerHTML = innerHTML;
 
-    // Adjust comparison line if needed
+    // Adjust as needed
     if (mode === "compare" && inputs[2] === "career") {
-        document.getElementById("compare-line").style.height = document.getElementById("display-compare-team-stats").offsetHeight.toString() + "px";
+        document.getElementById("compare-line").style.height = document.getElementById("display-team-stats").offsetHeight.toString() + "px";
+    } else if (inputs[2] === "season") {
+        document.getElementById("season-table").innerHTML = seasonTables[0];
     }
+    manageFooterBuffer(50 - document.getElementById("display-team-stats").offsetHeight);
 
 }
 
 // Compile team statistics for display
 function compileTeamStatistics(teamName1, teamName2, careerSeason, from1, to1, from2, to2, stats1, stats2) {
 
+    // TESTING
     console.log(stats1);
 
     // Variables for easier use
-    let statsHTML = ["", ""];
+    let textHTML = ["", ""];
+    let tablesHTML = [];
     let teamName = [teamName1, teamName2];
     let stats = [stats1, stats2];
     let from = [from1, from2];
@@ -364,115 +364,151 @@ function compileTeamStatistics(teamName1, teamName2, careerSeason, from1, to1, f
     if (careerSeason === "career") {
 
         for (let s = 0; s < (mode == "find" ? 1 : 2); s++) {
-            statsHTML[s] += `<p>League Champions: ${allTimeData[s][0]}</p>`;
-            statsHTML[s] += `<p>Finals Appearances: ${allTimeData[s][1]}</p>`;
+            textHTML[s] = `<p>League Champions: ${allTimeData[s][0]}</p>`;
+            textHTML[s] += `<p>Finals Appearances: ${allTimeData[s][1]}</p>`;
             const winPCT = ((allTimeData[s][3] / allTimeData[s][2])* 100).toFixed(2);
-            statsHTML[s] += `<p>Win Percentage: ${winPCT}%</p>`;
-            statsHTML[s] += `<p>Games Played: ${allTimeData[s][2]}</p>`;
-            statsHTML[s] += `<p>Games Won: ${allTimeData[s][3]}</p>`;
-            statsHTML[s] += `<p>Games Lost: ${allTimeData[s][4]}</p>`;
-            statsHTML[s] += `<p>Field Goals Made: ${allTimeData[s][5]}</p>`;
-            statsHTML[s] += `<p>Field Goals Attempted: ${allTimeData[s][6]}</p>`;
-            statsHTML[s] += `<p>Field Goals (3 Pointers) Made: ${allTimeData[s][7]}</p>`;
-            statsHTML[s] += `<p>Field Goals (3 Pointers) Attempted: ${allTimeData[s][8]}</p>`;
-            statsHTML[s] += `<p>Free Throws Made: ${allTimeData[s][9]}</p>`;
-            statsHTML[s] += `<p>Free Throws Attempted: ${allTimeData[s][10]}</p>`;
-            statsHTML[s] += `<p>Offensive Rebounds: ${allTimeData[s][11]}</p>`;
-            statsHTML[s] += `<p>Defensive Rebounds: ${allTimeData[s][12]}</p>`;
-            statsHTML[s] += `<p>Total Rebounds: ${allTimeData[s][13]}</p>`;
-            statsHTML[s] += `<p>Assists: ${allTimeData[s][14]}</p>`;
-            statsHTML[s] += `<p>Personal Fouls: ${allTimeData[s][15]}</p>`;
-            statsHTML[s] += `<p>Steals: ${allTimeData[s][16]}</p>`;
-            statsHTML[s] += `<p>Turnovers: ${allTimeData[s][17]}</p>`;
-            statsHTML[s] += `<p>Blocks: ${allTimeData[s][18]}</p>`;
-            statsHTML[s] += `<p>Points Scored: ${allTimeData[s][19]}</p>`;
+            textHTML[s] += `<p>Win Percentage: ${winPCT}%</p>`;
+            textHTML[s] += `<p>Games Played: ${allTimeData[s][2]}</p>`;
+            textHTML[s] += `<p>Games Won: ${allTimeData[s][3]}</p>`;
+            textHTML[s] += `<p>Games Lost: ${allTimeData[s][4]}</p>`;
+            textHTML[s] += `<p>Field Goals Made: ${allTimeData[s][5]}</p>`;
+            textHTML[s] += `<p>Field Goals Attempted: ${allTimeData[s][6]}</p>`;
+            textHTML[s] += `<p>Field Goals (3 Pointers) Made: ${allTimeData[s][7]}</p>`;
+            textHTML[s] += `<p>Field Goals (3 Pointers) Attempted: ${allTimeData[s][8]}</p>`;
+            textHTML[s] += `<p>Free Throws Made: ${allTimeData[s][9]}</p>`;
+            textHTML[s] += `<p>Free Throws Attempted: ${allTimeData[s][10]}</p>`;
+            textHTML[s] += `<p>Offensive Rebounds: ${allTimeData[s][11]}</p>`;
+            textHTML[s] += `<p>Defensive Rebounds: ${allTimeData[s][12]}</p>`;
+            textHTML[s] += `<p>Total Rebounds: ${allTimeData[s][13]}</p>`;
+            textHTML[s] += `<p>Assists: ${allTimeData[s][14]}</p>`;
+            textHTML[s] += `<p>Personal Fouls: ${allTimeData[s][15]}</p>`;
+            textHTML[s] += `<p>Steals: ${allTimeData[s][16]}</p>`;
+            textHTML[s] += `<p>Turnovers: ${allTimeData[s][17]}</p>`;
+            textHTML[s] += `<p>Blocks: ${allTimeData[s][18]}</p>`;
+            textHTML[s] += `<p>Points Scored: ${allTimeData[s][19]}</p>`;
         }
 
     // Season stats
     } else if (careerSeason === "season") {
-        
+             
         teamNum = mode == "find" ? 1 : 2;
         seasonCount = [seasons[0].length, seasons[1].length];
-        statIndex = [3, 4, 5, 6];
-        statWidth = [70, 20, 25, 45];
-        statsHTML[0] += '<table class="season-table"><tr><td>SEASON</td><td>GP</td><td>WIN</td><td>LOSS</td></tr><tr>';
-        for (let s = 0; s < 4; s++) {
-            statsHTML[0] += '<td><table>'
-            for (let i = 0; i < (seasonCount[0] > seasonCount[1] ? seasonCount[0] : seasonCount[1]); i++) {
-                statsHTML[0] += "<tr>";
-                for (let t = 0; t < teamNum; t++) {
-                    data = (i >= seasonCount[t] ? "" : seasons[t][i][statIndex[s]]);
-                    statsHTML[0] += `<td style="min-width: ${statWidth[s]}px">${data}</td>`;
-                }
-                statsHTML[0] += "</tr>";
+        statIndexes = [[3, 4, 5, 7, 12, 13, 10, 14, 14], []];
+        statWidths = [[0, 0, 0, 0, 0, 0, 0, 35, 35], []];
+        const statNames = ["SEASON", "GP", "W:L", "WIN%", "CONF", "DIV", "PO-W:L", "FNLS", "CHMP"];
+        statCount = 0;
+        
+        for (let ct = 0; ct < 1; ct++) {
+            statIndex = statIndexes[ct];
+            statWidth = statWidths[ct];
+            tablesHTML.push('<table class="season-table"><tr>');
+            for (let n = statCount; n < (statCount + statIndex.length); n++) {
+                tablesHTML[ct] += `<td>${statNames[n]}</td>`;
             }
-            statsHTML[0] += '</table></td>'
+            tablesHTML[ct] += "</tr><tr>";
+            for (let s = 0; s < statIndex.length; s++) {
+                tablesHTML[ct] += '<td><table>'
+                for (let i = 0; i < (seasonCount[0] > seasonCount[1] ? seasonCount[0] : seasonCount[1]); i++) {
+                    tablesHTML[ct] += "<tr>";
+                    for (let t = 0; t < teamNum; t++) {
+                        let data = "";
+                        if (i < seasonCount[t]) {
+                            data = seasons[t][i][statIndex[s]];
+                            if (statNames[statCount] == "WIN%") {
+                                data = (seasons[t][i][statIndex[s]] * 100).toFixed(2) + "%";
+                            }
+                            if (statNames[statCount] == "CONF" || statNames[statCount] == "DIV") {
+                                data = (seasons[t][i][statIndex[s]] == null ? "-" : `${seasons[t][i][statIndex[s] - 4]}/${seasons[t][i][statIndex[s]]}`)
+                            }
+                            if (statNames[statCount] == "W:L" || statNames[statCount] == "PO-W:L") {
+                                data = `${seasons[t][i][statIndex[s]]}:${seasons[t][i][statIndex[s] + 1]}`;
+                            }
+                            if (statNames[statCount] == "FNLS") {
+                                data = seasons[t][i][14] == "FINALS APPEARANCE" ? "X" : seasons[t][i][14] == "LEAGUE CHAMPION" ? "X" : "&nbsp;";
+                            }
+                            if (statNames[statCount] == "CHMP") {
+                                data = seasons[t][i][14] == "LEAGUE CHAMPION" ? "X" : "&nbsp;";
+                            }
+                        }
+                        tablesHTML[ct] += `<td class=${t == 0 ? '"season-color-1"' : '"season-color-2"'} style="min-width: ${statWidth[s]}px">${data}</td>`;
+                    }
+                    tablesHTML[ct] += "</tr>";
+                }
+                tablesHTML[ct] += '</table></td>';
+                statCount++;
+            }
+            tablesHTML[ct] += "</tr></table>";
         }
-        statsHTML[0] += "</tr></table>";
 
 
-            //statsHTML[s] += '<table class="season-table"><tr><td>SEASON</td><td>GP</td><td>WIN</td><td>LOSS</td><td>WIN%</td><td>CONF</td><td>DIV</td><td>PO-W</td><td>PO-L</td><td>FNLS</td><td>CHMP</td>' 
+            // 
             //+ '<td>FG</td><td>FG3</td><td>FT</td></tr>';
 
             /*
-        for (let s = 0; s < (mode == "find" ? 1 : 2); s++) {
-            for (let i = 0; i < seasons[s].length; i++) {
-                let seasonData = seasons[s][i];
-                statsHTML[s] += `<tr><td>${seasonData[3]}</td>`;
-                statsHTML[s] += `<td>${seasonData[4]}</td>`;    // GP
-                statsHTML[s] += `<td>${seasonData[5]}</td>`;    // WIN
-                statsHTML[s] += `<td>${seasonData[6]}</td>`;    // LOSS
-                statsHTML[s] += `<td>${(seasonData[7] * 100).toFixed(2)}%</td>`;    // WIN%
-                statsHTML[s] += "<td>" + (seasonData[12] == null ? "-" : `${seasonData[8]}/${seasonData[12]}`) + "</td>";      // CONF
-                statsHTML[s] += `<td>${seasonData[9]}/${seasonData[13]}</td>`;      // DIV
-                statsHTML[s] += `<td>${seasonData[10]}</td>`;   // PO-W
-                statsHTML[s] += `<td>${seasonData[11]}</td>`;   // PO-L
-                statsHTML[s] += `<td>${seasonData[14] == "FINALS APPEARANCE" ? "Yes" : seasonData[14] == "LEAGUE CHAMPION" ? "Yes" : "No"}</td>`;     // FNLS
-                statsHTML[s] += `<td>${seasonData[14] == "LEAGUE CHAMPION" ? "Yes" : "No"}</td>`;       // CHMP
                 statsHTML[s] += `<td>${seasonData[15] == 0 ? '-' : seasonData[15]}/${seasonData[16] == 0 ? '-' : seasonData[16]}</td>`;      // FG
                 statsHTML[s] += `<td>${seasonData[18]}/${seasonData[19]}</td>`;      // FG3
                 statsHTML[s] += `<td>${seasonData[21]}/${seasonData[22]}</td>`;      // FT
-                //statsHTML[s] += `<td>${seasonData[]}</td>`; 
-                //statsHTML[s] += `<td>${seasonData[]}</td>`;    
-                statsHTML[s] += "</tr>";
-            }
-            statsHTML[s] += "</table>";
-        }
-        */
+            */
 
     }
+    numSeasonTables = 1;
+    currentSeasonTable = 0;
+    seasonTables = tablesHTML;
     // Need to add acronyms and new stats to stat page
 
     // Formatting and returning
     for (let s = 0; s < (mode == "find" ? 1 : 2); s++) {
-        if (statsHTML[s] === ""){
-            statsHTML[s] = `<h2>${teamName[s]}</h2>No Data To Show`;
+        if (textHTML[s] === ""){
+            textHTML[s] = `<h2>${teamName[s]}</h2>No Data To Show`;
         } else {
-            statsHTML[s] = (careerSeason === "career" ? `<h2>${teamName[s]}</h2>` : "") + statsHTML[s];
-            manageFooterBuffer(false);
+            textHTML[s] = (careerSeason === "career" ? `<h2>${teamName[s]}</h2>` : "") + textHTML[s];
         }
     }
-    let innerHTML = `<table class="compare-table"><tr class="compare-text"><td>${statsHTML[0]}</td></tr></table>`;
-    if (mode === "compare" && careerSeason === "career") {
-        innerHTML = `<table class="compare-table"><tr>
-        <td class="compare-text">${statsHTML[0]}</td>
+    let innerHTML = '<table class="stat-table">';
+    if (mode === "find" && careerSeason === "season") {
+        innerHTML = '<table class="stat-table"><tr><td class="season-arrow"><button onclick="seasonTablePrevious()"><strong><</strong></button></td><td id="season-table"></td><td class="season-arrow"><button onclick="seasonTableNext()"><strong>></strong></button></td></tr></table>';
+    } else if (mode === "compare" && careerSeason === "season") {
+        innerHTML = '<table class="stat-table">'
+        + '<tr><td class="season-arrow"><button onclick="seasonTablePrevious()"><strong><</strong></button>'
+        + `</td><td><table><tr><td class="season-color-1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="season-key">&nbsp;&nbsp;${teamName1}</td></tr><tr><td class="season-color-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="season-key">&nbsp;&nbsp;${teamName2}</td></tr></table></td>`
+        + '<td class="season-arrow"><button onclick="seasonTableNext()"><strong>></strong></button></td></tr>'
+        + '<tr><td></td><td id="season-table"></td><td></td></tr></table>';
+    } else if (mode === "find" && careerSeason === "career") {
+        innerHTML = `<table class="stat-table"><tr><td>${textHTML[0]}</td></tr></table>`;
+    } else if (mode === "compare" && careerSeason === "career") {
+        innerHTML = `<table class="stat-table"><tr>
+        <td>${textHTML[0]}</td>
         <td><div class="compare-line" id="compare-line"></div></td>
-        <td class="compare-text">${statsHTML[1]}</td>
+        <td>${textHTML[1]}</td>
         </tr></table>`;
     }
     return innerHTML;
 
 }
 
+// Changes season tables
+function seasonTableNext() {
+    currentSeasonTable++;
+    if (currentSeasonTable == numSeasonTables) {
+        currentSeasonTable = 0;
+    }
+    document.getElementById("season-table").innerHTML = seasonTables[currentSeasonTable];
+}
+function seasonTablePrevious() {
+    currentSeasonTable--;
+    if (currentSeasonTable < 0) {
+        currentSeasonTable = (numSeasonTables - 1);
+    }
+    document.getElementById("season-table").innerHTML = seasonTables[currentSeasonTable];
+}
+
 // Switches stat mode
 function switchStatMode() {
 
-    manageFooterBuffer(true);
+    manageFooterBuffer(500);
     newMode = mode == "find" ? "compare" : "find";
-    document.getElementById("display-" + mode + "-" + subject + "-stats").style.display = "none";
-    document.getElementById("display-" + mode + "-" + subject + "-stats").innerHTML = "";
+    document.getElementById("display-" + subject + "-stats").innerHTML = "";
     document.getElementById("search-" + mode + "-" + subject + "-stats").style.display = "none";
-    document.getElementById("display-" + newMode + "-" + subject + "-stats").style.display = "block";
     document.getElementById("search-" + newMode + "-" + subject + "-stats").style.display = "block";
     mode = newMode;
 
@@ -557,10 +593,11 @@ function getInput(nameCount = 0, careerSeason = false, fromToCount = 0, seasonTy
 
 }
 
-function manageFooterBuffer(activate) {
-    if (activate) {
-        document.getElementById("footer-buffer").style.display = "block";
-    } else {
-        document.getElementById("footer-buffer").style.display = "none";
+// Manages the buffer between content and footer
+function manageFooterBuffer(neededBuffer) {
+    if (neededBuffer < 0) {
+        neededBuffer = 0;
     }
+    document.getElementById("footer-buffer").style.height = (neededBuffer + "px");
 }
+
