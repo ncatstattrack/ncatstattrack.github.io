@@ -15,6 +15,23 @@ let teamNameToID = null;
 
 
 // Event calls
+// Runs when the website loads
+window.addEventListener("load", function() {
+
+    currentURL = window.location.href;
+    console.log(currentURL);
+    // Finish this
+    if (currentURL.indexOf("/index.html") != -1 || currentURL.indexOf("/aboutus.html") != -1 || currentURL.indexOf("/thestats.html") != -1) {
+        helloWorld();
+    } else if (currentURL.indexOf("/players.html") != -1) {
+        getPlayerInfo();
+    } else if (currentURL.indexOf("/teams.html") != -1) {
+        getTeamInfo();
+    }
+    loginLink();
+
+});
+
 // Display/Hide find season range
 window.addEventListener("DOMContentLoaded", function() {
     if (document.getElementById("find-season")) {
@@ -49,6 +66,14 @@ window.addEventListener("DOMContentLoaded", function() {
 
 
 // Website Scriting
+// Changes login link depending on user login status
+function loginLink() {
+
+    // Users who are logged in
+    //document.getElementById("login-container").innerHTML = '';
+
+}
+
 // Get player info
 async function getPlayerInfo() {
 

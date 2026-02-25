@@ -1,11 +1,16 @@
 
 // All API Calls
+// Base URL
+base = 'https://posthexaplar-camie-sparklessly.ngrok-free.dev';
+deafult_headers = { 'ngrok-skip-browser-warning': 'true' };
+
 // Pings the API to wake up
 async function helloWorld() {
 
     try {
-        const response = await fetch('https://testing-75ef.onrender.com/',{
-            method: 'GET'
+        const response = await fetch(`${base}/`,{
+            method: 'GET',
+            headers: deafult_headers
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -26,8 +31,9 @@ async function callPlayerInfo() {
     }
   
     try {
-        const response = await fetch('https://testing-75ef.onrender.com/player-info',{
-            method: 'GET'
+        const response = await fetch(`${base}/player-info`,{
+            method: 'GET',
+            headers: deafult_headers
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -50,8 +56,9 @@ async function callPlayerInfo() {
 async function callPlayerStats(id, failCounter) {
 
     try {
-        const response = await fetch(`https://testing-75ef.onrender.com/player-stats?id=${id}`,{
-            method: 'GET'
+        const response = await fetch(`${base}/player-stats?id=${id}`,{
+            method: 'GET',
+            headers: deafult_headers
         });
         if (failCounter == 4) {
             return "FAIL";
@@ -75,8 +82,9 @@ async function callTeamInfo() {
     }
   
     try {
-        const response = await fetch('https://testing-75ef.onrender.com/team-info',{
-            method: 'GET'
+        const response = await fetch(`${base}/team-info`,{
+            method: 'GET',
+            headers: deafult_headers
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -102,8 +110,9 @@ async function callTeamInfo() {
 async function callTeamStats(id, failCounter) {
 
     try {
-        const response = await fetch(`https://testing-75ef.onrender.com/team-stats?id=${id}`,{
-            method: 'GET'
+        const response = await fetch(`${base}/team-stats?id=${id}`,{
+            method: 'GET',
+            headers: deafult_headers
         });
         if (failCounter == 4) {
             return "FAIL";

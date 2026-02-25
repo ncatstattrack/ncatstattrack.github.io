@@ -30,6 +30,18 @@ nav a:hover {
     color: white;
 }
 
+#login-container {
+    float: right;
+}
+
+#login-form {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-family: Arial;
+}
+
 #footer-buffer {
     height: 500px;
 }
