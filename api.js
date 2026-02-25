@@ -2,6 +2,10 @@
 // All API Calls
 // Base URL
 base = 'https://posthexaplar-camie-sparklessly.ngrok-free.dev';
+
+// Render Web Service
+// base = 'https://testing-75ef.onrender.com/';
+
 deafult_headers = { 'ngrok-skip-browser-warning': 'true' };
 
 // Pings the API to wake up
@@ -127,3 +131,4 @@ async function callTeamStats(id, failCounter) {
     }
 
 }
+
