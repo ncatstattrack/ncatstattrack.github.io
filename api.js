@@ -132,3 +132,66 @@ async function callTeamStats(id, failCounter) {
 
 }
 
+// To log the user into account 
+async function loginUser() {
+
+    const username = document.getElementById("login-username").value;
+    const password = document.getElementById("login-password").value;
+
+    try {
+        const response = await fetch(`${base}/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...deafult_headers
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Login successful!");
+            localStorage.setItem("user", username);
+            window.location.href = "index.html";
+        } else {
+            alert("Invalid username or password.");
+        }
+
+    } catch (error) {
+        console.error("Login error:", error);
+    }
+
+}
+
+// async function registerUser(username, password) {
+
+//     try {
+//         const response = await fetch(`${base}/register`, {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json",
+//                 ...deafult_headers
+//             },
+//             body: JSON.stringify({
+//                 username: username,
+//                 password: password
+//             })
+//         });
+
+//         const data = await response.json();
+
+//         if (response.ok) {
+//             alert("Account created!");
+//         } else {
+//             alert("Signup failed.");
+//         }
+
+//     } catch (error) {
+//         console.error("Signup error:", error);
+//     }
+
+// }
