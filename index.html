@@ -22,27 +22,24 @@
     <main class="home">
 
         <!-- TOP NAV / HEADER -->
-        <header class="home-topbar">
+    <header class="site-header">
+        <div class="site-brand">
+            <img src="stattrack_logo.png" alt="StatTrack Logo" class="site-logo">
+            <span class="site-title">StatTrack</span>
+        </div>
 
-            <div class="home-brand">
-                <img src="stattrack_logo.png" alt="StatTrack Logo" class="home-logo">
-                <span class="home-brandname">StatTrack</span>
-            </div>
+        <nav class="site-nav">
+            <a href="#" onclick="return false;">Home</a>
+            <a href="players.html">Players</a>
+            <a href="teams.html">Teams</a>
+            <a href="thestats.html">The Stats</a>
+            <a href="aboutus.html">About Us</a>
+        </nav>
 
-            <nav class="home-nav">
-                <a href="#" onclick="return false;">Home</a>
-                <a href="players.html">Players</a>
-                <a href="teams.html">Teams</a>
-                <a href="thestats.html">The Stats</a>
-                <a href="aboutus.html">About Us</a>
-            </nav>
-
-            <!-- Login Button (kept from your current version) -->
-            <div id="login-container">
-                <a href="login.html">LOGIN / SIGNUP</a>
-            </div>
-
-        </header>
+        <div class="site-actions">
+            <a href="login.html" class="login-btn">Login / Signup</a>
+        </div>
+    </header>
 
         <!-- HERO CONTENT -->
         <section class="home-hero">
