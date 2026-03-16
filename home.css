@@ -82,10 +82,10 @@ nav.home-nav a,
 nav.home-nav a:visited {
   color: rgba(255,255,255,.75) !important;
   text-decoration: none !important;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   font-family: inherit !important;
-  padding: 7px 14px;
+  padding: 7px 20px;
   border-radius: 8px;
   transition: background 0.18s, color 0.18s;
   letter-spacing: 0.1px;
