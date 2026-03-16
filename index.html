@@ -1,48 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>StatTrack | Home</title>
+
+    <!-- Global styles -->
     <link rel="stylesheet" href="style.css">
-    <script src = "api.js"></script>
-    <script src = "script.js"></script>
 
+    <!-- Homepage specific styles -->
+    <link rel="stylesheet" href="home.css">
+
+    <script src="api.js"></script>
+    <script src="script.js"></script>
 </head>
-<body>
-    
-    <!-- Site Header -->
-    <header>
-        <table>
-            <tr>
-                <td>
-                    <img id="header-image" src="stattrack_logo.png" alt="StatTrack Logo" width="50" height="50">
-                </td>
-                <td>
-                    <h1>StatTrack</h1>
-                </td>
-            </tr>
-        </table>
-    </header>
 
-    <!-- Navigation -->
-    <nav>
-        <a href=# onclick="return false;">Home</a> |
-        <a href="players.html">Players</a> |
-        <a href="teams.html">Teams</a> |
-        <a href="thestats.html">The Stats</a> |
-        <a href="aboutus.html">About Us</a>
-        <div id="login-container"><a href="login.html">LOGIN / SIGNUP</a></div>
-    </nav>
+<body onload="helloWorld()">
 
-    <!-- Page Header -->
-    <div class="simple-text">
-        <h2>Home Page</h2>
-    </div>
+    <!-- HOMEPAGE WRAPPER -->
+    <main class="home">
 
-    
-    <!-- Footer Buffer (Probably Temporary) -->
-    <div id="footer-buffer">
-    </div>
+        <!-- TOP NAV / HEADER -->
+        <header class="home-topbar">
+
+            <div class="home-brand">
+                <img src="stattrack_logo.png" alt="StatTrack Logo" class="home-logo">
+                <span class="home-brandname">StatTrack</span>
+            </div>
+
+            <nav class="home-nav">
+                <a href="#" onclick="return false;">Home</a>
+                <a href="players.html">Players</a>
+                <a href="teams.html">Teams</a>
+                <a href="thestats.html">The Stats</a>
+                <a href="aboutus.html">About Us</a>
+            </nav>
+
+            <!-- Login Button (kept from your current version) -->
+            <div id="login-container">
+                <a href="login.html">LOGIN / SIGNUP</a>
+            </div>
+
+        </header>
+
+        <!-- HERO CONTENT -->
+        <section class="home-hero">
+
+            <!-- Left -->
+            <div class="home-left">
+                <div class="home-pill">🏀 Basketball Analytics Dashboard</div>
+                <h1 class="home-title">StatTrack</h1>
+
+                <p class="home-subtitle">
+                    Explore players, teams, and stats in one place.
+                </p>
+            </div>
+
+            <!-- Right -->
+            <div class="home-right">
+
+                <div class="home-trust">
+                    Built for hoop fans & students
+                </div>
+
+                <div class="home-actions">
+                    <a class="home-linkbtn" href="aboutus.html">Learn More</a>
+                    <a class="home-primarybtn" href="players.html">View Players</a>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer Buffer -->
+    <div id="footer-buffer"></div>
 
     <!-- Site Footer -->
     <footer>
