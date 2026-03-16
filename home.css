@@ -2,191 +2,233 @@
    Only linked on index.html, so it won’t affect your other pages.
    Uses your existing image: stattrackbg.png
 */
-
+ 
 /* Full-screen background + dark overlay */
 .home{
   min-height: 100vh;
   position: relative;
   color: #fff;
-
+ 
   background-image:
     linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.82)),
     url("stattrackbg.png");
-
+ 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
-
+ 
 /* ---- Top bar (logo left, links centered, CTA right) ---- */
 .home-topbar{
   position: absolute;
   top: 0; left: 0; right: 0;
   z-index: 5;
-
+ 
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-
-  padding: 18px 28px;
+ 
+  padding: 22px 40px;
+ 
+  /* Override any global styles */
+  background: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
 }
-
+ 
 .home-brand{
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 180px;
+  gap: 12px;
+  min-width: 200px;
+  text-decoration: none;
 }
-
+ 
 .home-logo{
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
 }
-
+ 
 .home-brandname{
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: .2px;
+  letter-spacing: -0.3px;
+  color: #fff !important;
+  text-decoration: none !important;
 }
-
+ 
 .home-nav{
   display: flex;
-  gap: 22px;
+  gap: 8px;
   align-items: center;
   justify-content: center;
   flex: 1;
 }
-
+ 
 .home-nav a{
-  color: rgba(255,255,255,.78);
-  text-decoration: none;
+  color: rgba(255,255,255,.72) !important;
+  text-decoration: none !important;
   font-size: 14px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: 8px;
+  transition: background 0.18s, color 0.18s;
+  letter-spacing: 0.1px;
 }
-
+ 
 .home-nav a:hover{
-  color: #fff;
+  color: #fff !important;
+  background: rgba(255,255,255,.10);
 }
-
+ 
+/* Login / Signup button */
+#login-container {
+  min-width: 160px;
+  display: flex;
+  justify-content: flex-end;
+}
+ 
+#login-container a {
+  text-decoration: none !important;
+  color: #fff !important;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,.35);
+  background: rgba(255,255,255,.08);
+  transition: background 0.18s, border-color 0.18s;
+  white-space: nowrap;
+}
+ 
+#login-container a:hover {
+  background: rgba(255,255,255,.16);
+  border-color: rgba(255,255,255,.6);
+}
+ 
 /* CTA button (orange) */
 .home-cta{
   text-decoration: none;
   font-weight: 700;
   padding: 10px 14px;
   border-radius: 10px;
-
+ 
   background: #ff6a1a;
-  color: #111;
+  color: #fff !important;
 }
-
+ 
 /* ---- Hero layout ---- */
 .home-hero{
   min-height: 100vh;
   max-width: 1200px;
   margin: 0 auto;
-
+ 
   /* space for topbar */
   padding: 110px 28px 40px;
-
+ 
   display: grid;
   grid-template-columns: 1.25fr 1fr;
   gap: 40px;
   align-items: center;
 }
-
+ 
 /* Left side */
 .home-pill{
   display: inline-block;
   padding: 10px 14px;
   border-radius: 999px;
-
+ 
   background: rgba(255,255,255,.10);
   border: 1px solid rgba(255,255,255,.18);
   color: rgba(255,255,255,.92);
   font-size: 13px;
 }
-
+ 
 .home-title{
   margin: 18px 0 10px;
   font-size: clamp(56px, 6vw, 96px);
   line-height: .95;
   letter-spacing: -1px;
 }
-
+ 
 .home-subtitle{
   margin: 0;
   font-size: 20px;
   color: rgba(255,255,255,.88);
   max-width: 520px;
 }
-
+ 
 /* Right side */
 .home-right{
   justify-self: end;
   max-width: 420px;
 }
-
+ 
 .home-trust{
   display: inline-block;
   padding: 8px 12px;
   border-radius: 999px;
-
+ 
   background: rgba(255,255,255,.10);
   border: 1px solid rgba(255,255,255,.18);
   color: rgba(255,255,255,.80);
   font-size: 13px;
-
+ 
   margin-bottom: 14px;
 }
-
+ 
 .home-actions{
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
 }
-
+ 
 /* Buttons */
 .home-linkbtn{
   text-decoration: none;
   color: #fff;
-
+ 
   padding: 12px 16px;
   border-radius: 10px;
-
+ 
   background: rgba(255,255,255,.10);
   border: 1px solid rgba(255,255,255,.18);
 }
-
+ 
 .home-linkbtn:hover{
   background: rgba(255,255,255,.14);
 }
-
+ 
 .home-primarybtn{
   text-decoration: none;
   color: #111;
   font-weight: 800;
-
+ 
   padding: 12px 16px;
   border-radius: 10px;
-
+ 
   background: #ff6a1a;
 }
-
+ 
 .home-primarybtn:hover{
   filter: brightness(1.05);
 }
-
+ 
 /* ---- Mobile ---- */
 @media (max-width: 950px){
   /* keep it simple: hide center nav on small screens */
   .home-nav{ display: none; }
-
+ 
   .home-hero{
     grid-template-columns: 1fr;
     gap: 18px;
   }
-
+ 
   .home-right{
     justify-self: start;
   }
 }
+ 
