@@ -1,0 +1,429 @@
+/* teams.css
+   Dark theme for teams.html — consistent with StatTrack design system.
+   Overrides style.css using specificity and !important where needed.
+*/
+
+/* ── Google Font ── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+/* ── CSS Variables ── */
+:root {
+  --bg:        #0f1117;
+  --surface:   #181c27;
+  --surface2:  #1f2436;
+  --border:    rgba(255,255,255,0.08);
+  --orange:    #ff6a1a;
+  --orange-dim: rgba(255,106,26,0.15);
+  --text:      #e8eaf0;
+  --text-dim:  rgba(232,234,240,0.55);
+  --radius:    12px;
+  --font:      'DM Sans', sans-serif;
+  --mono:      'DM Mono', monospace;
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: var(--font) !important;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+header {
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 14px 40px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+header table { border: none; }
+header table td { padding: 0 6px 0 0; vertical-align: middle; }
+
+header h1 {
+  margin: 0 !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+  font-family: var(--font) !important;
+  letter-spacing: -0.3px;
+}
+
+#header-image {
+  width: 44px !important;
+  height: 44px !important;
+}
+
+/* ── Nav ── */
+nav {
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 0 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  height: 48px;
+  font-size: 0;
+}
+
+nav a, nav a:visited {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--text-dim) !important;
+  text-decoration: none !important;
+  font-family: var(--font) !important;
+  padding: 6px 16px !important;
+  border-radius: 8px !important;
+  transition: background 0.18s, color 0.18s !important;
+}
+
+nav a:hover {
+  color: #fff !important;
+  background: rgba(255,255,255,0.08) !important;
+}
+
+#login-container {
+  margin-left: auto !important;
+  float: none !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+#login-container a,
+#login-container a:visited {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #fff !important;
+  padding: 7px 16px !important;
+  border-radius: 8px !important;
+  border: 1.5px solid rgba(255,255,255,0.25) !important;
+  background: rgba(255,255,255,0.06) !important;
+  letter-spacing: 0.3px;
+}
+
+#login-container a:hover {
+  background: rgba(255,255,255,0.12) !important;
+  border-color: rgba(255,255,255,0.5) !important;
+}
+
+/* ── Page Layout ── */
+.simple-text {
+  width: auto !important;
+  max-width: 860px;
+  margin: 0 auto;
+  font-family: var(--font) !important;
+  color: var(--text) !important;
+}
+
+.simple-text h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin: 40px 0 24px;
+  letter-spacing: -0.4px;
+}
+
+#waiting-message p {
+  color: var(--text-dim);
+  font-size: 15px;
+  padding: 40px 0;
+}
+
+/* ── Search Panel ── */
+#search-find-team-stats,
+#search-compare-team-stats {
+  background: var(--surface) !important;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px !important;
+  margin-bottom: 28px;
+}
+
+#search-find-team-stats table,
+#search-compare-team-stats table {
+  border: none;
+  width: 100%;
+}
+
+#search-find-team-stats td,
+#search-compare-team-stats td {
+  border: none;
+  padding: 6px 8px 6px 0;
+  vertical-align: middle;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+}
+
+/* ── Labels ── */
+label {
+  color: var(--text-dim) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  font-family: var(--font) !important;
+  letter-spacing: 0.2px;
+  margin-right: 6px;
+}
+
+/* ── Inputs ── */
+input[type="text"],
+input[list] {
+  background: var(--surface2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  color: var(--text) !important;
+  font-family: var(--font) !important;
+  font-size: 14px !important;
+  padding: 9px 14px !important;
+  outline: none !important;
+  transition: border-color 0.18s !important;
+  min-width: 220px;
+}
+
+input[type="text"]:focus,
+input[list]:focus {
+  border-color: var(--orange) !important;
+}
+
+/* ── Radio Buttons ── */
+input[type="radio"] {
+  accent-color: var(--orange);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+/* ── Buttons ── */
+button {
+  background: var(--orange) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-family: var(--font) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  padding: 9px 20px !important;
+  cursor: pointer !important;
+  transition: filter 0.18s !important;
+}
+
+button:hover {
+  filter: brightness(1.1) !important;
+}
+
+/* ── Section Divider ── */
+hr {
+  border: none !important;
+  border-top: 1px solid var(--border) !important;
+  margin: 8px 0 32px !important;
+}
+
+/* ── Stats Display Area ── */
+#display-team-stats {
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: var(--font) !important;
+  color: var(--text) !important;
+}
+
+#display-team-stats h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+
+/* ── Stat Cards Grid (all-time stats) ── */
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 20px 20px 40px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.stat-card:hover {
+  border-color: rgba(255,106,26,0.4);
+  background: var(--surface2);
+}
+
+.stat-card-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+  font-family: var(--font);
+}
+
+.stat-card-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--mono);
+  line-height: 1;
+}
+
+/* ── Season-by-season table ── */
+.stat-table {
+  margin: 0 auto 40px !important;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fake-header {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  color: var(--orange) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  padding: 20px 0 10px !important;
+  display: block;
+}
+
+.season-table {
+  width: 100%;
+  border-collapse: collapse !important;
+  border: none !important;
+  border-radius: var(--radius);
+  overflow: hidden;
+  font-size: 13px;
+  font-family: var(--mono) !important;
+}
+
+.season-table th,
+.season-table td {
+  border: none !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 10px 14px !important;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.season-table th {
+  background: var(--surface2) !important;
+  color: var(--text-dim) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  font-family: var(--font) !important;
+}
+
+.season-color-1 {
+  background-color: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.season-color-2 {
+  background-color: var(--surface2) !important;
+  color: var(--text) !important;
+}
+
+.season-table tr:hover td {
+  background: rgba(255,106,26,0.07) !important;
+}
+
+.season-key {
+  text-align: left !important;
+  font-weight: 500 !important;
+  color: #fff !important;
+}
+
+.season-arrow {
+  position: relative !important;
+  width: 80px !important;
+  text-align: center;
+}
+
+.season-arrow button {
+  position: static !important;
+  transform: none !important;
+  padding: 6px 12px !important;
+  font-size: 16px !important;
+  background: var(--surface2) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  border-radius: 6px !important;
+}
+
+.season-arrow button:hover {
+  background: var(--orange-dim) !important;
+  border-color: var(--orange) !important;
+  color: var(--orange) !important;
+}
+
+.stat-text {
+  font-family: var(--font) !important;
+  text-align: center;
+  color: var(--text) !important;
+  padding: 0 20px;
+}
+
+.compare-line {
+  border-left: 1px solid var(--border) !important;
+  height: 100% !important;
+  position: relative !important;
+  left: 50% !important;
+  margin-left: -1px !important;
+  top: 0 !important;
+}
+
+/* ── Footer Buffer ── */
+#footer-buffer {
+  height: 80px !important;
+}
+
+/* ── Footer ── */
+footer {
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  box-shadow: none !important;
+  border-top: 1px solid var(--border) !important;
+  color: var(--text-dim) !important;
+  font-family: var(--font) !important;
+  padding: 28px 40px !important;
+  text-align: center;
+}
+
+footer p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+footer a,
+footer a:visited {
+  color: var(--orange) !important;
+  text-decoration: none !important;
+  font-weight: 500;
+}
+
+footer a:hover {
+  text-decoration: underline !important;
+}
