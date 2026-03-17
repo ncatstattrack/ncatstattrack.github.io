@@ -66,12 +66,6 @@ footer a:visited {
     font-family: Arial;
 }
 
-.stat-text {
-    font-family: Arial;
-    text-align: center;
-    vertical-align: top;
-}
-
 .fake-header {
     font-size: large;
     font-weight: bold;
@@ -82,9 +76,19 @@ footer a:visited {
     height: 5px;
 }
 
+.stat-text {
+    font-family: Arial;
+    text-align: center;
+    vertical-align: top;
+}
+
 .stat-table {
     margin-left: auto;
     margin-right: auto;
+}
+
+.stat-table tbody {
+    vertical-align: top;
 }
 
 .season-table {
@@ -102,7 +106,10 @@ footer a:visited {
 
 .season-arrow button {
     position: absolute;
-    top: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    top: 10px;
 }
 
 .season-key {
