@@ -482,28 +482,36 @@ function compileTeamStatistics(teamName1, teamName2, careerSeason, from1, to1, f
     if (careerSeason === "career") {
 
         for (let s = 0; s < (mode == "find" ? 1 : 2); s++) {
-            textHTML[s] = `<p>League Champions: ${allTimeData[s][0]}</p>`;
-            textHTML[s] += `<p>Finals Appearances: ${allTimeData[s][1]}</p>`;
-            const winPCT = ((allTimeData[s][3] / allTimeData[s][2])* 100).toFixed(2);
-            textHTML[s] += `<p>Win Percentage: ${winPCT}%</p>`;
-            textHTML[s] += `<p>Games Played: ${allTimeData[s][2]}</p>`;
-            textHTML[s] += `<p>Games Won: ${allTimeData[s][3]}</p>`;
-            textHTML[s] += `<p>Games Lost: ${allTimeData[s][4]}</p>`;
-            textHTML[s] += `<p>Field Goals Made: ${allTimeData[s][5]}</p>`;
-            textHTML[s] += `<p>Field Goals Attempted: ${allTimeData[s][6]}</p>`;
-            textHTML[s] += `<p>Field Goals (3 Pointers) Made: ${allTimeData[s][7]}</p>`;
-            textHTML[s] += `<p>Field Goals (3 Pointers) Attempted: ${allTimeData[s][8]}</p>`;
-            textHTML[s] += `<p>Free Throws Made: ${allTimeData[s][9]}</p>`;
-            textHTML[s] += `<p>Free Throws Attempted: ${allTimeData[s][10]}</p>`;
-            textHTML[s] += `<p>Offensive Rebounds: ${allTimeData[s][11]}</p>`;
-            textHTML[s] += `<p>Defensive Rebounds: ${allTimeData[s][12]}</p>`;
-            textHTML[s] += `<p>Total Rebounds: ${allTimeData[s][13]}</p>`;
-            textHTML[s] += `<p>Assists: ${allTimeData[s][14]}</p>`;
-            textHTML[s] += `<p>Personal Fouls: ${allTimeData[s][15]}</p>`;
-            textHTML[s] += `<p>Steals: ${allTimeData[s][16]}</p>`;
-            textHTML[s] += `<p>Turnovers: ${allTimeData[s][17]}</p>`;
-            textHTML[s] += `<p>Blocks: ${allTimeData[s][18]}</p>`;
-            textHTML[s] += `<p>Points Scored: ${allTimeData[s][19]}</p>`;
+            const winPCT = ((allTimeData[s][3] / allTimeData[s][2]) * 100).toFixed(2);
+            const cards = [
+                { label: "League Champions",   value: allTimeData[s][0] },
+                { label: "Finals Appearances", value: allTimeData[s][1] },
+                { label: "Win %",              value: winPCT + "%" },
+                { label: "Games Played",       value: allTimeData[s][2] },
+                { label: "Games Won",          value: allTimeData[s][3] },
+                { label: "Games Lost",         value: allTimeData[s][4] },
+                { label: "FG Made",            value: allTimeData[s][5] },
+                { label: "FG Attempted",       value: allTimeData[s][6] },
+                { label: "3PT Made",           value: allTimeData[s][7] },
+                { label: "3PT Attempted",      value: allTimeData[s][8] },
+                { label: "FT Made",            value: allTimeData[s][9] },
+                { label: "FT Attempted",       value: allTimeData[s][10] },
+                { label: "Offensive Reb",      value: allTimeData[s][11] },
+                { label: "Defensive Reb",      value: allTimeData[s][12] },
+                { label: "Total Rebounds",     value: allTimeData[s][13] },
+                { label: "Assists",            value: allTimeData[s][14] },
+                { label: "Personal Fouls",     value: allTimeData[s][15] },
+                { label: "Steals",             value: allTimeData[s][16] },
+                { label: "Turnovers",          value: allTimeData[s][17] },
+                { label: "Blocks",             value: allTimeData[s][18] },
+                { label: "Points Scored",      value: allTimeData[s][19] },
+            ];
+            let cardsHTML = '<div class="stat-cards">';
+            cards.forEach(card => {
+                cardsHTML += `<div class="stat-card"><span class="stat-card-label">${card.label}</span><span class="stat-card-value">${card.value}</span></div>`;
+            });
+            cardsHTML += '</div>';
+            textHTML[s] = cardsHTML;
         }
 
     // Season stats
