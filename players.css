@@ -406,3 +406,95 @@ footer a:visited {
 footer a:hover {
   text-decoration: underline !important;
 }
+
+/* ── Career Stat Tabs ── */
+.stat-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 32px auto 0;
+  max-width: 860px;
+  padding: 0 20px;
+}
+
+.stat-tab {
+  background: var(--surface2) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-dim) !important;
+  font-family: var(--font) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 8px 20px !important;
+  border-radius: 999px !important;
+  cursor: pointer !important;
+  transition: all 0.18s !important;
+  letter-spacing: 0.2px;
+}
+
+.stat-tab:hover {
+  color: #fff !important;
+  border-color: rgba(255,255,255,0.2) !important;
+}
+
+.stat-tab.active {
+  background: var(--orange) !important;
+  border-color: var(--orange) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+}
+
+/* ── Stat Panels ── */
+.stat-panels {
+  max-width: 860px;
+  margin: 16px auto 0;
+  padding: 0 20px;
+}
+
+.stat-panel {
+  display: none;
+}
+
+.stat-panel.active {
+  display: block;
+}
+
+/* ── Stat Cards Grid ── */
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  padding-bottom: 40px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.stat-card:hover {
+  border-color: rgba(255,106,26,0.4);
+  background: var(--surface2);
+}
+
+.stat-card-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+  font-family: var(--font);
+}
+
+.stat-card-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--mono);
+  line-height: 1;
+}
