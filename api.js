@@ -2,11 +2,7 @@
 // All API Calls
 // Base URL
 base = 'https://posthexaplar-camie-sparklessly.ngrok-free.dev';
-
-// Render Web Service
-// base = 'https://testing-75ef.onrender.com/';
-
-deafult_headers = { 'ngrok-skip-browser-warning': 'true' };
+default_headers = { 'ngrok-skip-browser-warning': 'true' };
 
 // Pings the API to wake up
 async function helloWorld() {
@@ -14,7 +10,7 @@ async function helloWorld() {
     try {
         const response = await fetch(`${base}/`,{
             method: 'GET',
-            headers: deafult_headers
+            headers: default_headers
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -37,7 +33,7 @@ async function callPlayerInfo() {
     try {
         const response = await fetch(`${base}/player-info`,{
             method: 'GET',
-            headers: deafult_headers
+            headers: default_headers
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -62,7 +58,7 @@ async function callPlayerStats(id, failCounter) {
     try {
         const response = await fetch(`${base}/player-stats?id=${id}`,{
             method: 'GET',
-            headers: deafult_headers
+            headers: default_headers
         });
         if (failCounter == 4) {
             return "FAIL";
@@ -88,7 +84,7 @@ async function callTeamInfo() {
     try {
         const response = await fetch(`${base}/team-info`,{
             method: 'GET',
-            headers: deafult_headers
+            headers: default_headers
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -116,7 +112,7 @@ async function callTeamStats(id, failCounter) {
     try {
         const response = await fetch(`${base}/team-stats?id=${id}`,{
             method: 'GET',
-            headers: deafult_headers
+            headers: default_headers
         });
         if (failCounter == 4) {
             return "FAIL";
@@ -132,66 +128,86 @@ async function callTeamStats(id, failCounter) {
 
 }
 
-// To log the user into account 
-async function loginUser() {
+// Sign up the user
+async function userSignup(username, password) {
 
-    const username = document.getElementById("login-username").value;
-    const password = document.getElementById("login-password").value;
+    try {
+        const response = await fetch(`${base}/signup`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...default_headers
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        })
+        if (response.ok) {
+            return "Account Successfully Created";
+        } else {
+            if (response.status == 409){
+                return "Account With Username Already Exists";
+            } else {
+                return "Error Occurred When Creating Account";
+            }
+        }
+    } catch (error) {
+        console.error("Signup error:", error);
+    }
+    
+}
+
+// Logs user in
+async function userLogin(username, password) {
 
     try {
         const response = await fetch(`${base}/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                ...deafult_headers
+                ...default_headers
             },
             body: JSON.stringify({
                 username: username,
                 password: password
-            })
-        });
-
-        const data = await response.json();
-
+            }),
+            credentials: 'include'
+        })
+        const data = await response.json()
         if (response.ok) {
-            alert("Login successful!");
-            localStorage.setItem("user", username);
-            window.location.href = "index.html";
+            document.cookie = `session_cookie=${data["session_cookie"]}`;
+            return "Successful Login";
         } else {
-            alert("Invalid username or password.");
+            return "Incorrect Username or Password";
         }
-
     } catch (error) {
         console.error("Login error:", error);
     }
-
+    
 }
 
-// async function registerUser(username, password) {
+// Check login status of user
+async function checkLogin(){
 
-//     try {
-//         const response = await fetch(`${base}/register`, {
-//             method: "POST",
-//             headers: {
-//                 "Content-Type": "application/json",
-//                 ...deafult_headers
-//             },
-//             body: JSON.stringify({
-//                 username: username,
-//                 password: password
-//             })
-//         });
+    try {
+        const response = await fetch(`${base}/check-login`,{
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json",
+                ...default_headers
+            },
+            credentials: 'include'
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log(data);
+        return data["message"];
+    } catch (error) {
+        console.error("Error:", error);
+        return "Not Logged In"
+    }
 
-//         const data = await response.json();
-
-//         if (response.ok) {
-//             alert("Account created!");
-//         } else {
-//             alert("Signup failed.");
-//         }
-
-//     } catch (error) {
-//         console.error("Signup error:", error);
-//     }
-
-// }
+}
