@@ -176,7 +176,7 @@ async function userLogin(username, password) {
         })
         const data = await response.json()
         if (response.ok) {
-            //document.cookie = `session_cookie=${data["session_cookie"]}`;         Testing
+            document.cookie += `; logged_in=true`;      // Testing
             return "Successful Login";
         } else {
             return "Incorrect Username or Password";
