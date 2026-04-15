@@ -44,8 +44,16 @@
         <input type="text" name="login-password" id="login-password" required></input>
         <br><br>
         <button onclick="registerUser()">CREATE ACCOUNT</button>
-        <br><br>
-        <p id="message-box">&nbsp;</p>
+        <br>
+        <p id="input-warning" style="display: none;">
+            Username and Password Must:<br>
+            - Have 8 to 20 characters<br>
+            - Only contain A-Z, a-z, 0-9<br>
+            - Passwords may have special<br>
+            characters !, @, #, $, %, &, and *
+        </p>
+        <br>
+        <p id="message-box"></p>
         <br>
         <p>Have an account? Login <a id="signup-link" href="login.html">here</a>.</p>
     </div>

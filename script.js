@@ -52,15 +52,18 @@ let teamNameToID = null;
 window.addEventListener("load", function() {
 
     currentURL = window.location.href;
-    // Finish this
-    if (currentURL.indexOf("/index.html") != -1 || currentURL.indexOf("/aboutus.html") != -1 || currentURL.indexOf("/thestats.html") != -1) {
-        helloWorld();
-    } else if (currentURL.indexOf("/players.html") != -1) {
+    if (currentURL.indexOf("/signup.html") == -1 && currentURL.indexOf("/login.html") == -1 && currentURL.indexOf("/account.html") == -1) {
+        loginLink();
+    }
+    if (currentURL.indexOf("/players.html") != -1) {
         getPlayerInfo();
-    } else if (currentURL.indexOf("/teams.html") != -1) {
+    }
+    if (currentURL.indexOf("/teams.html") != -1) {
         getTeamInfo();
     }
-    loginLink();
+    if (currentURL.indexOf("/query.html") != -1) {
+        queryPageSetup();
+    }
 
 });
 
@@ -98,14 +101,24 @@ window.addEventListener("DOMContentLoaded", function() {
 
 
 // Website Scriting
+// Changes login link depending on user login status
+async function loginLink() {
+
+    // Users who are logged in
+    if (document.cookie.includes("logged-in")) {
+        document.getElementById("login-container").innerHTML = '<a href="account.html">ACCOUNT</a>';
+    } else {
+        document.getElementById("login-container").innerHTML = '<a href="login.html">LOGIN</a>';
+    }
+
+}
+
 // New user signup
 async function registerUser() {
     
     username = document.getElementById("login-username").value;
     password = document.getElementById("login-password").value;
-
-    if (username.length < 1 || password < 1) {
-        alert("NO");
+    if (!validUserPass(username, password)) {
         return;
     }
 
@@ -119,8 +132,7 @@ async function loginUser() {
     
     username = document.getElementById("login-username").value;
     password = document.getElementById("login-password").value;
-    if (username.length < 1 || password < 1) {
-        alert("NO");
+    if (!validUserPass(username, password)) {
         return;
     }
 
@@ -133,16 +145,124 @@ async function loginUser() {
 
 }
 
-// Changes login link depending on user login status
-async function loginLink() {
+// Validate username and password
+function validUserPass(username, password) {
 
-    result = await checkLogin();
-    // Users who are logged in
-    if (result != "Not Logged In") {
-        console.log('Logged In');
+    document.getElementById("input-warning").style.display = "none";
+    document.getElementById("message-box").innerHTML = "";
+    if (username.match(/^[A-Za-z0-9]{4,20}$/) == null || password.match(/^[A-Za-z0-9!@#$%&*]{4,20}$/) == null) {
+        document.getElementById("input-warning").style.display = "block";
+        return false;
     }
+    return true;
 
-    //document.getElementById("login-container").innerHTML = '';
+}
+
+// Query page setup
+async function queryPageSetup() {
+
+    const queryParams = new URLSearchParams(window.location.search);
+    subject = queryParams.get('subject');
+    mode = queryParams.get('mode');
+    let name1 = queryParams.get('name-1');
+    let name2 = queryParams.get('name-2');
+    let careerSeason = queryParams.get('career-season');
+    let from1 = queryParams.get('from-1');
+    let to1 = queryParams.get('to-1');
+    let from2 = queryParams.get('from-2');
+    let to2 = queryParams.get('to-2');
+    let seasonType = queryParams.get('season-type');
+
+    let timespan1 = null;
+    let timespan2 = null;
+    if (from1 != null && to1 != null) {
+        timespan1 = ((from1 != "None" && to1 != "None") ? (from1 + " to " + to1) : (from1 != "None" && to1 == "None") ? ("Since " + from1) : "All Seasons");
+    }
+    if (from2 != null && to2 != null) {
+        timespan2 = ((from2 != "None" && to2 != "None") ? (from2 + " to " + to2) : (from2 != "None" && to2 == "None") ? ("Since " + from2) : "All Seasons");
+    }
+    
+    // C:/Users/cflat/Documents/School/SENIOR_PROJECT/Testing/query.html?subject=player&mode=find&name-1=Luka Dončić&career-season=season&from-1=2002&to-1=2020&season-type=RegularSeason
+    // C:/Users/cflat/Documents/School/SENIOR_PROJECT/Testing/query.html?subject=team&mode=find&name-1=Hornets&career-season=career&from-1=None&to-1=None
+    if (subject === "player") {
+
+        // Correct names (for potential case change in url)
+        for (let i = 0; i < playerNames.length; i++) {
+            if (name1.toLowerCase() == playerNames[i].toLowerCase()) {
+                name1 = playerNames[i];
+            }
+            if (name2.toLowerCase() == playerNames[i].toLowerCase()) {
+                name2 = playerNames[i];
+            }
+        }
+
+        // Title
+        document.getElementById("query-title").innerHTML =
+            mode == "find" ? name1 : (name1 + " vs. " + name2);
+        document.getElementById("query-subtitle").innerHTML =
+            (careerSeason == "career" ? "Career" : "Season") + " Statistics<br>" + 
+            (seasonType == "all" ? "All" : seasonType == "RegularSeason" ? "Regular" : seasonType == "PostSeason" ? "Post" : seasonType == "AllStarSeason" ? "All-Star" : seasonType == "CollegeSeason" ? "College" : "Showcase") +
+            (seasonType == "all" ? " Seasons<br>" : " Season<br>") +
+            (careerSeason == "career" ? "" : (mode == "find" ? timespan1 : (timespan1 + " vs. " + timespan2)));
+            
+        // Get stats
+        const stats1 = await callPlayerStats(playerNameToID.get(name1), 0);
+        const stats2 = mode == "find" ? null : await callPlayerStats(playerNameToID.get(name2), 0);
+        if (stats1 === "FAIL" || (mode === "compare" && stats2 === "FAIL")) {
+            document.getElementById("display-stats").innerHTML = "Failed to retrieve data";
+            return;
+        }
+
+        // Compile and display stats
+        innerHTML = mode == "find" ? innerHTML = compilePlayerStatistics(name1, null, careerSeason, from1, to1, null, null, seasonType, stats1, null)
+            : compilePlayerStatistics(name1, name2, careerSeason, from1, to1, from2, to2, seasonType, stats1, stats2);
+        document.getElementById("display-stats").innerHTML = innerHTML;
+
+        // Adjust as needed
+        if (mode === "compare" && inputs[5] === "career") {
+            document.getElementById("compare-line").style.height = document.getElementById("display-stats").offsetHeight.toString() + "px";
+        }
+        manageFooterBuffer(500 - document.getElementById("display-stats").offsetHeight);
+
+    } else if (subject === "team") {
+        
+        // Correct names (for potential case change in url)
+        for (let i = 0; i < teamNames.length; i++) {
+            if (name1.toLowerCase() == teamNames[i].toLowerCase()) {
+                name1 = teamNames[i];
+            }
+            if (name2.toLowerCase() == teamNames[i].toLowerCase()) {
+                name2 = teamNames[i];
+            }
+        }
+
+        // Title
+        document.getElementById("query-title").innerHTML =
+            (mode == "find" ? name1 : (name1 + " vs. " + name2));
+        document.getElementById("query-subtitle").innerHTML = 
+            (careerSeason == "career" ? "All-Time" : "Season") + " Statistics<br>" +
+            (careerSeason == "career" ? "" : (mode == "find" ? timespan1 : (timespan1 + " vs. " + timespan2)));
+
+        // Get stats
+        const stats1 = await callTeamStats(teamNameToID.get(name1), 0);
+        const stats2 = mode == "find" ? null : await callTeamStats(teamNameToID.get(name2), 0);
+        if (stats1 === "FAIL" || (mode === "compare" && stats2 === "FAIL")) {
+            document.getElementById("display-stats").innerHTML = "Failed to retrieve data";
+            return;
+        }
+
+        // Compile stats
+        innerHTML = mode == "find" ? innerHTML = compileTeamStatistics(name1, null, careerSeason, from1, to1, null, null, stats1, null)
+            : compileTeamStatistics(name1, name2, careerSeason, from1, to1, from2, to2, stats1, stats2);
+        document.getElementById("display-stats").innerHTML = innerHTML;
+
+        // Adjust as needed
+        if (mode === "compare" && inputs[2] === "career") {
+            document.getElementById("compare-line").style.height = document.getElementById("display-stats").offsetHeight.toString() + "px";
+        }
+        manageFooterBuffer(500 - document.getElementById("display-stats").offsetHeight);
+
+    }
 
 }
 

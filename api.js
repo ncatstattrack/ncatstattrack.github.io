@@ -176,7 +176,7 @@ async function userLogin(username, password) {
         })
         const data = await response.json()
         if (response.ok) {
-            document.cookie = `session_cookie=${data["session_cookie"]}`;
+            //document.cookie = `session_cookie=${data["session_cookie"]}`;         Testing
             return "Successful Login";
         } else {
             return "Incorrect Username or Password";
@@ -187,27 +187,3 @@ async function userLogin(username, password) {
     
 }
 
-// Check login status of user
-async function checkLogin(){
-
-    try {
-        const response = await fetch(`${base}/check-login`,{
-            method: 'GET',
-            headers: {
-                "Content-Type": "application/json",
-                ...default_headers
-            },
-            credentials: 'include'
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log(data);
-        return data["message"];
-    } catch (error) {
-        console.error("Error:", error);
-        return "Not Logged In"
-    }
-
-}
