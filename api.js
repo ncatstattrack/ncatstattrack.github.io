@@ -94,7 +94,7 @@ async function callTeamInfo() {
         let abbToName = [];
         let nameToID = [];
         for (i = 0; i < data.length; i++) {
-            teamNames.push([data[i][1]]);
+            teamNames.push(data[i][1]);
             abbToName.push([data[i][2], data[i][1]]);
             nameToID.push([data[i][1], data[i][0]]);
         }
@@ -146,11 +146,12 @@ async function userSignup(username, password) {
         if (response.ok) {
             return "Account Successfully Created";
         } else {
-            if (response.status == 409){
+            if (response.status == 409) {
                 return "Account With Username Already Exists";
-            } else {
-                return "Error Occurred When Creating Account";
+            } else if (response.status == 400) {
+                return "Invalid Input";
             }
+            return "Error Occurred When Creating Account";
         }
     } catch (error) {
         console.error("Signup error:", error);
@@ -176,9 +177,12 @@ async function userLogin(username, password) {
         })
         const data = await response.json()
         if (response.ok) {
-            document.cookie += `; logged_in=true`;      // Testing
+            sessionStorage.setItem("logged-in", true);
             return "Successful Login";
         } else {
+            if (response.status == 400) {
+                return "Invalid Input";
+            }
             return "Incorrect Username or Password";
         }
     } catch (error) {

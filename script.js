@@ -55,6 +55,10 @@ window.addEventListener("load", function() {
     if (currentURL.indexOf("/signup.html") == -1 && currentURL.indexOf("/login.html") == -1 && currentURL.indexOf("/account.html") == -1) {
         loginLink();
     }
+    if (currentURL.indexOf("/index.html") != -1) {
+        loadRecentQueries();
+        loadFavoriteQueries();
+    }
     if (currentURL.indexOf("/players.html") != -1) {
         getPlayerInfo();
     }
@@ -105,7 +109,7 @@ window.addEventListener("DOMContentLoaded", function() {
 async function loginLink() {
 
     // Users who are logged in
-    if (document.cookie.includes("logged-in")) {
+    if (sessionStorage.getItem("logged-in")) {
         document.getElementById("login-container").innerHTML = '<a href="account.html">ACCOUNT</a>';
     } else {
         document.getElementById("login-container").innerHTML = '<a href="login.html">LOGIN</a>';
@@ -150,7 +154,7 @@ function validUserPass(username, password) {
 
     document.getElementById("input-warning").style.display = "none";
     document.getElementById("message-box").innerHTML = "";
-    if (username.match(/^[A-Za-z0-9]{4,20}$/) == null || password.match(/^[A-Za-z0-9!@#$%&*]{4,20}$/) == null) {
+    if (username.match(/^[A-Za-z0-9]{8,20}$/) == null || password.match(/^[A-Za-z0-9!@#$%&*]{8,20}$/) == null) {
         document.getElementById("input-warning").style.display = "block";
         return false;
     }
@@ -161,7 +165,18 @@ function validUserPass(username, password) {
 // Query page setup
 async function queryPageSetup() {
 
-    const queryParams = new URLSearchParams(window.location.search);
+    // Get query
+    query = window.location.search;
+    query = decodeURIComponent(query.substring(1));
+
+    // Check and update recent
+    recents = localStorage.getItem("recents");
+    if (recents.includes(query)) {
+        updateRecentQueries(query);
+    }
+
+    // Query display
+    const queryParams = new URLSearchParams(query);
     subject = queryParams.get('subject');
     mode = queryParams.get('mode');
     let name1 = queryParams.get('name-1');
@@ -181,9 +196,13 @@ async function queryPageSetup() {
     if (from2 != null && to2 != null) {
         timespan2 = ((from2 != "None" && to2 != "None") ? (from2 + " to " + to2) : (from2 != "None" && to2 == "None") ? ("Since " + from2) : "All Seasons");
     }
+
+    // Call for player info
+    await callPlayerInfo();
+
+    // Call for team info
+    await callTeamInfo();
     
-    // C:/Users/cflat/Documents/School/SENIOR_PROJECT/Testing/query.html?subject=player&mode=find&name-1=Luka Dončić&career-season=season&from-1=2002&to-1=2020&season-type=RegularSeason
-    // C:/Users/cflat/Documents/School/SENIOR_PROJECT/Testing/query.html?subject=team&mode=find&name-1=Hornets&career-season=career&from-1=None&to-1=None
     if (subject === "player") {
 
         // Correct names (for potential case change in url)
@@ -191,7 +210,7 @@ async function queryPageSetup() {
             if (name1.toLowerCase() == playerNames[i].toLowerCase()) {
                 name1 = playerNames[i];
             }
-            if (name2.toLowerCase() == playerNames[i].toLowerCase()) {
+            if (name2 != null && name2.toLowerCase() == playerNames[i].toLowerCase()) {
                 name2 = playerNames[i];
             }
         }
@@ -202,7 +221,7 @@ async function queryPageSetup() {
         document.getElementById("query-subtitle").innerHTML =
             (careerSeason == "career" ? "Career" : "Season") + " Statistics<br>" + 
             (seasonType == "all" ? "All" : seasonType == "RegularSeason" ? "Regular" : seasonType == "PostSeason" ? "Post" : seasonType == "AllStarSeason" ? "All-Star" : seasonType == "CollegeSeason" ? "College" : "Showcase") +
-            (seasonType == "all" ? " Seasons<br>" : " Season<br>") +
+            (seasonType == "all" ? " Season Types<br>" : " Season<br>") +
             (careerSeason == "career" ? "" : (mode == "find" ? timespan1 : (timespan1 + " vs. " + timespan2)));
             
         // Get stats
@@ -219,7 +238,7 @@ async function queryPageSetup() {
         document.getElementById("display-stats").innerHTML = innerHTML;
 
         // Adjust as needed
-        if (mode === "compare" && inputs[5] === "career") {
+        if (mode === "compare" && careerSeason === "career") {
             document.getElementById("compare-line").style.height = document.getElementById("display-stats").offsetHeight.toString() + "px";
         }
         manageFooterBuffer(500 - document.getElementById("display-stats").offsetHeight);
@@ -231,7 +250,7 @@ async function queryPageSetup() {
             if (name1.toLowerCase() == teamNames[i].toLowerCase()) {
                 name1 = teamNames[i];
             }
-            if (name2.toLowerCase() == teamNames[i].toLowerCase()) {
+            if (name2 != null && name2.toLowerCase() == teamNames[i].toLowerCase()) {
                 name2 = teamNames[i];
             }
         }
@@ -257,14 +276,135 @@ async function queryPageSetup() {
         document.getElementById("display-stats").innerHTML = innerHTML;
 
         // Adjust as needed
-        if (mode === "compare" && inputs[2] === "career") {
+        if (mode === "compare" && careerSeason === "career") {
             document.getElementById("compare-line").style.height = document.getElementById("display-stats").offsetHeight.toString() + "px";
         }
         manageFooterBuffer(500 - document.getElementById("display-stats").offsetHeight);
 
     }
+    
+    // Check for Favorite Status
+    if (sessionStorage.getItem("logged-in")) {
+        document.getElementById("favorite-div").style.display = "block";
+    }
 
 }
+
+// Updates recents
+function updateRecentQueries(queryString) {
+
+    let recents = localStorage.getItem("recents");
+    if (recents == null) {
+        recents = queryString;
+    } else if (!recents.includes(queryString)) {
+        recents = `${queryString}|${recents}`;
+    } else if (recents.includes(queryString)) {
+        recents = recents.substring(0, recents.indexOf(queryString)) + recents.substring(recents.indexOf(queryString) + queryString.length);
+        if (recents == ""){
+            recents = queryString;
+        } else {
+            recents = `${queryString}|${recents}`;
+        }
+        while (recents.indexOf('||') != -1) {
+            recents = recents.replace('||', '|');
+        }
+        if (recents.charAt(recents.length - 1) == '|'){
+            recents = recents.substring(0, recents.length - 1)
+        }
+    }
+    while (recents.split('|').length - 1 >= 10) {
+        recents = recents.substring(0, recents.lastIndexOf('|'));
+    }
+    localStorage.setItem("recents", recents);
+
+}
+
+// Clears recents
+function clearRecentQueries() {
+
+    localStorage.removeItem("recents");
+    loadRecentQueries();
+
+}
+
+// Load recents
+function loadRecentQueries() {
+    
+    if (localStorage.getItem("recents") == null) {
+        document.getElementById("recent-queries").innerHTML = "No recent queries to show.";
+    } else {
+        recents = localStorage.getItem("recents") + '|';
+        innerHTML = '<table>';
+        
+        while (recents.indexOf('|') != -1) {
+
+            let query = recents.substring(0, recents.indexOf('|'));
+            const queryParams = new URLSearchParams(query);
+            let from1 = queryParams.get('from-1');
+            let to1 = queryParams.get('to-1');
+            let from2 = queryParams.get('from-2');
+            let to2 = queryParams.get('to-2');
+            let timespan1 = null;
+            let timespan2 = null;
+            if (from1 != null && to1 != null) {
+                timespan1 = ((from1 != "None" && to1 != "None") ? (from1 + " to " + to1) : (from1 != "None" && to1 == "None") ? ("Since " + from1) : "All Seasons");
+            }
+            if (from2 != null && to2 != null) {
+                timespan2 = ((from2 != "None" && to2 != "None") ? (from2 + " to " + to2) : (from2 != "None" && to2 == "None") ? ("Since " + from2) : "All Seasons");
+            }
+
+            innerHTML += `<tr><td id="query-link"><a href="query.html?${query}">`;
+
+            //subject=player&mode=find&name-1=A.C. Green&name-2=null&career-season=career&from-1=null&to-1=null&from-2=null&to-2=null&season-type=all
+            if (queryParams.get('mode') == 'find') {
+                innerHTML += `${queryParams.get('name-1')}`;
+            } else if (queryParams.get('mode') == 'compare') {
+                innerHTML += `${queryParams.get('name-1')} vs. ${queryParams.get('name-2')}`;
+            }
+            
+            innerHTML += '<div class="little-br"></div>';
+
+            if (queryParams.get('subject') == 'player') {
+                innerHTML += ((queryParams.get('career-season') == "career" ? "Career" : "Season") + " Statistics");
+                let type = ((queryParams.get('season-type') == "all" ? "All" : queryParams.get('season-type') == "RegularSeason" ? "Regular" : queryParams.get('season-type') == "PostSeason" ? "Post" : queryParams.get('season-type') == "AllStarSeason" ? "All-Star" : queryParams.get('season-type') == "CollegeSeason" ? "College" : "Showcase") +
+                    (queryParams.get('season-type') == "all" ? " Season Types" : " Season"));
+                if (queryParams.get('career-season') == "season") {
+                    innerHTML += (" | " + type);
+                } else {
+                    innerHTML += (" | " + type);
+                }
+            } else if (queryParams.get('subject') == 'team') {
+                innerHTML += ((queryParams.get('career-season') == "career" ? "All-Time" : "Season") + " Statistics"); 
+            }
+
+            innerHTML += '<div class="little-br"></div>';
+
+            if (queryParams.get('career-season') == "season") {
+                innerHTML += ((queryParams.get('mode') == "find" ? timespan1 : (timespan1 + " vs. " + timespan2)));
+            }
+            innerHTML += '</td></tr>';
+            recents = recents.substring(recents.indexOf('|') + 1);
+        }
+        innerHTML += '</table><br><button onclick="clearRecentQueries()">Clear Recents</button>';
+        document.getElementById("recent-queries").innerHTML = innerHTML;
+    }
+    
+}
+
+// Updates favorites
+
+
+// Load favorites
+async function loadFavoriteQueries() {
+
+
+    if (sessionStorage.getItem("logged-in") == null) {
+        document.getElementById("favorite-queries").innerHTML = "Need to make an account or sign in to show favorites.";
+    }
+    // No favorite queries to show.
+
+}
+
 
 // Get player info
 async function getPlayerInfo() {
@@ -323,6 +463,10 @@ async function getPlayerStats() {
         document.getElementById("compare-line").style.height = document.getElementById("display-player-stats").offsetHeight.toString() + "px";
     }
     manageFooterBuffer(500 - document.getElementById("display-player-stats").offsetHeight);
+
+    // Add query to recents
+    let query = `subject=player&mode=${mode}&name-1=${inputs[1][0]}&name-2=${mode == "find" ? "null" : inputs[1][1]}&career-season=${inputs[2]}&from-1=${inputs[3][0]}&to-1=${inputs[4][0]}&from-2=${inputs[3][1]}&to-2=${inputs[4][1]}&season-type=${inputs[5]}`;
+    updateRecentQueries(query);
     
 }
 
@@ -382,7 +526,6 @@ function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, 
         const teamNum = mode == "find" ? 1 : 2;
         let seasonTypes = [];
         let seasonStats = [[], []];
-        console.log(stats[0].resultSets);
         for (let i = 0; i < stats[0].resultSets.length; i++) {
             let count = 0;
             let buffer = [[], []];
@@ -505,6 +648,8 @@ function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, 
         <td>${textHTML[1]}</td>
         </tr></table>`;
     }
+    innerHTML = `<div id="favorite-checkbox">` +
+    `</div>${innerHTML}`
     return innerHTML;
 
 }
@@ -563,6 +708,10 @@ async function getTeamStats() {
         document.getElementById("compare-line").style.height = document.getElementById("display-team-stats").offsetHeight.toString() + "px";
     }
     manageFooterBuffer(500 - document.getElementById("display-team-stats").offsetHeight);
+
+    // Add query to recents
+    let query = `subject=team&mode=${mode}&name-1=${inputs[1][0]}&name-2=${mode == "find" ? "null" : inputs[1][1]}&career-season=${inputs[2]}&from-1=${inputs[3][0]}&to-1=${inputs[4][0]}&from-2=${inputs[3][1]}&to-2=${inputs[4][1]}`;
+    updateRecentQueries(query);
 
 }
 
@@ -732,6 +881,8 @@ function compileTeamStatistics(teamName1, teamName2, careerSeason, from1, to1, f
         <td>${textHTML[1]}</td>
         </tr></table>`;
     }
+    innerHTML = `<div id="favorite-checkbox">` +
+    `</div>${innerHTML}`
     return innerHTML;
 
 }
@@ -799,16 +950,16 @@ function getInput(nameCount = 0, careerSeason = false, fromToCount = 0, seasonTy
 
     // From To Timeframe
     if (fromToCount > 0) {
-        let from = [];
-        let to = [];
+        let from = [null, null];
+        let to = [null, null];
         if (returnArray[returnArray.length - 1] === "season") {
             for (let i = 0; i < fromToCount; i++) {
-                from.push(document.getElementById(mode + "-from-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value);
+                from[i] = document.getElementById(mode + "-from-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value;
                 if (from[i].match(seasonRegex) == null) {
                     from[i] = "None";
                     document.getElementById(mode + "-from-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value = from[i];
                 }
-                to.push(document.getElementById(mode + "-to-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value);
+                to[i] = document.getElementById(mode + "-to-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value;
                 if (to[i].match(seasonRegex) == null) {
                     to[i] = "None";
                     document.getElementById(mode + "-to-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value = to[i];
@@ -850,4 +1001,3 @@ function manageFooterBuffer(neededBuffer) {
     }
     document.getElementById("footer-buffer").style.height = (neededBuffer + "px");
 }
-

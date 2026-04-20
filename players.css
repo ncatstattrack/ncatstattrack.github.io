@@ -380,35 +380,6 @@ hr {
 }
 */
 
-/* ── Footer ── */
-footer {
-  background: var(--surface) !important;
-  background-color: var(--surface) !important;
-  box-shadow: none !important;
-  border-top: 1px solid var(--border) !important;
-  color: var(--text-dim) !important;
-  font-family: var(--font) !important;
-  padding: 28px 40px !important;
-  text-align: center;
-}
-
-footer p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-footer a,
-footer a:visited {
-  color: var(--orange) !important;
-  text-decoration: none !important;
-  font-weight: 500;
-}
-
-footer a:hover {
-  text-decoration: underline !important;
-}
-
 /* ── Career Stat Tabs ── */
 .stat-tabs {
   display: flex;
