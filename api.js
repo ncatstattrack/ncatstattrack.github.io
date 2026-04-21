@@ -142,7 +142,7 @@ async function userSignup(username, password) {
                 username: username,
                 password: password
             })
-        })
+        });
         if (response.ok) {
             return "Account Successfully Created";
         } else {
@@ -174,7 +174,7 @@ async function userLogin(username, password) {
                 password: password
             }),
             credentials: 'include'
-        })
+        });
         const data = await response.json()
         if (response.ok) {
             sessionStorage.setItem("logged-in", true);
@@ -189,5 +189,56 @@ async function userLogin(username, password) {
         console.error("Login error:", error);
     }
     
+}
+
+// Get favorite queries
+async function getFavorites() {
+
+    try {
+        const response = await fetch(`${base}/favorites`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                ...default_headers
+            },
+            credentials: 'include'
+        });
+        const data = await response.json()
+        if (response.ok) {
+            return data['favorites'];
+        } else {
+            return "Error";
+        }
+    } catch (error) {
+        console.error("Fetch error:", error);
+    }
+
+}
+
+// Update favorite queries
+async function updateFavorites(favorites) {
+
+    try {
+        const response = await fetch(`${base}/favorites`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...default_headers
+            },
+            body: JSON.stringify({
+                favorites: favorites
+            }),
+            credentials: 'include'
+        })
+        const data = await response.json()
+        if (response.ok) {
+            return "Successful Update";
+        } else {
+            return "Update Error";
+        }
+    } catch (error) {
+        console.error("Update error:", error);
+    }
+
 }
 

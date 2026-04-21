@@ -2,6 +2,8 @@
 // Global Variables
 let mode = null;
 let subject = null;
+let currentQuery = null;
+let currentFavorites = null;
 let numSeasonTables = new Object({
     "TeamSeasonTable": null
 });
@@ -39,7 +41,7 @@ const playerSeasonTypeToSeasonTableName = new Object({
     "SeasonTotalsShowcaseSeason" : "PlayerShowcaseSeasonTable"
 });
 
-// Caching Variables
+// ID Variables
 let playerNames = null;
 let playerNameToID = null;
 let teamNames = null;
@@ -55,7 +57,7 @@ window.addEventListener("load", function() {
     if (currentURL.indexOf("/signup.html") == -1 && currentURL.indexOf("/login.html") == -1 && currentURL.indexOf("/account.html") == -1) {
         loginLink();
     }
-    if (currentURL.indexOf("/index.html") != -1) {
+    if (currentURL.indexOf("/index.html") != -1 || currentURL == (window.location.origin + "/") || currentURL == window.location.origin) {
         loadRecentQueries();
         loadFavoriteQueries();
     }
@@ -71,8 +73,10 @@ window.addEventListener("load", function() {
 
 });
 
-// Display/Hide find season range
+// Listens to content
 window.addEventListener("DOMContentLoaded", function() {
+    
+    // Display/Hide find season range
     if (document.getElementById("find-season")) {
         document.getElementById("find-season").addEventListener("change", function() {
             if (this.checked) {
@@ -101,6 +105,14 @@ window.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
+    
+    // Runs on change to checkbox
+    if (document.getElementById("favorite")) {
+        document.getElementById("favorite").addEventListener("change", function () {
+            updateFavoriteQueries(this.checked);
+        });
+    }
+
 });
 
 
@@ -109,7 +121,7 @@ window.addEventListener("DOMContentLoaded", function() {
 async function loginLink() {
 
     // Users who are logged in
-    if (sessionStorage.getItem("logged-in")) {
+    if (sessionStorage.getItem("logged-in") == 'true') {
         document.getElementById("login-container").innerHTML = '<a href="account.html">ACCOUNT</a>';
     } else {
         document.getElementById("login-container").innerHTML = '<a href="login.html">LOGIN</a>';
@@ -166,17 +178,17 @@ function validUserPass(username, password) {
 async function queryPageSetup() {
 
     // Get query
-    query = window.location.search;
-    query = decodeURIComponent(query.substring(1));
+    let temp = window.location.search;
+    currentQuery = decodeURIComponent(temp.substring(1));
 
     // Check and update recent
     recents = localStorage.getItem("recents");
-    if (recents.includes(query)) {
-        updateRecentQueries(query);
+    if (recents != null && recents.includes(currentQuery)) {
+        updateRecentQueries();
     }
 
     // Query display
-    const queryParams = new URLSearchParams(query);
+    const queryParams = new URLSearchParams(currentQuery);
     subject = queryParams.get('subject');
     mode = queryParams.get('mode');
     let name1 = queryParams.get('name-1');
@@ -283,33 +295,48 @@ async function queryPageSetup() {
 
     }
     
-    // Check for Favorite Status
-    if (sessionStorage.getItem("logged-in")) {
-        document.getElementById("favorite-div").style.display = "block";
+    // Show/Check favorite if needed
+    if (sessionStorage.getItem("logged-in") == 'true') {
+
+        currentFavorites = await getFavorites();
+
+        if (currentFavorites.includes(currentQuery)) {
+            document.getElementById("favorite").checked = true;
+        } else {
+            document.getElementById("favorite").checked = false;
+        }
+        document.getElementById("favorite-block").style.display = "block";
+
+    } else {
+        document.getElementById("favorite-block").style.display = "none";
+        document.getElementById("favorite").checked = false;
     }
 
 }
 
 // Updates recents
-function updateRecentQueries(queryString) {
+function updateRecentQueries() {
 
     let recents = localStorage.getItem("recents");
     if (recents == null) {
-        recents = queryString;
-    } else if (!recents.includes(queryString)) {
-        recents = `${queryString}|${recents}`;
-    } else if (recents.includes(queryString)) {
-        recents = recents.substring(0, recents.indexOf(queryString)) + recents.substring(recents.indexOf(queryString) + queryString.length);
-        if (recents == ""){
-            recents = queryString;
-        } else {
-            recents = `${queryString}|${recents}`;
-        }
+        recents = currentQuery;
+    } else if (!recents.includes(currentQuery)) {
+        recents = `${currentQuery}|${recents}`;
+    } else if (recents.includes(currentQuery)) {
+        recents = recents.substring(0, recents.indexOf(currentQuery)) + recents.substring(recents.indexOf(currentQuery) + currentQuery.length);
         while (recents.indexOf('||') != -1) {
             recents = recents.replace('||', '|');
         }
         if (recents.charAt(recents.length - 1) == '|'){
             recents = recents.substring(0, recents.length - 1)
+        }
+        if (recents.charAt(0) == '|'){
+            recents = recents.substring(1)
+        }
+        if (recents == ""){
+            recents = currentQuery;
+        } else {
+            recents = `${currentQuery}|${recents}`;
         }
     }
     while (recents.split('|').length - 1 >= 10) {
@@ -333,78 +360,129 @@ function loadRecentQueries() {
     if (localStorage.getItem("recents") == null) {
         document.getElementById("recent-queries").innerHTML = "No recent queries to show.";
     } else {
-        recents = localStorage.getItem("recents") + '|';
-        innerHTML = '<table>';
-        
-        while (recents.indexOf('|') != -1) {
-
-            let query = recents.substring(0, recents.indexOf('|'));
-            const queryParams = new URLSearchParams(query);
-            let from1 = queryParams.get('from-1');
-            let to1 = queryParams.get('to-1');
-            let from2 = queryParams.get('from-2');
-            let to2 = queryParams.get('to-2');
-            let timespan1 = null;
-            let timespan2 = null;
-            if (from1 != null && to1 != null) {
-                timespan1 = ((from1 != "None" && to1 != "None") ? (from1 + " to " + to1) : (from1 != "None" && to1 == "None") ? ("Since " + from1) : "All Seasons");
-            }
-            if (from2 != null && to2 != null) {
-                timespan2 = ((from2 != "None" && to2 != "None") ? (from2 + " to " + to2) : (from2 != "None" && to2 == "None") ? ("Since " + from2) : "All Seasons");
-            }
-
-            innerHTML += `<tr><td id="query-link"><a href="query.html?${query}">`;
-
-            //subject=player&mode=find&name-1=A.C. Green&name-2=null&career-season=career&from-1=null&to-1=null&from-2=null&to-2=null&season-type=all
-            if (queryParams.get('mode') == 'find') {
-                innerHTML += `${queryParams.get('name-1')}`;
-            } else if (queryParams.get('mode') == 'compare') {
-                innerHTML += `${queryParams.get('name-1')} vs. ${queryParams.get('name-2')}`;
-            }
-            
-            innerHTML += '<div class="little-br"></div>';
-
-            if (queryParams.get('subject') == 'player') {
-                innerHTML += ((queryParams.get('career-season') == "career" ? "Career" : "Season") + " Statistics");
-                let type = ((queryParams.get('season-type') == "all" ? "All" : queryParams.get('season-type') == "RegularSeason" ? "Regular" : queryParams.get('season-type') == "PostSeason" ? "Post" : queryParams.get('season-type') == "AllStarSeason" ? "All-Star" : queryParams.get('season-type') == "CollegeSeason" ? "College" : "Showcase") +
-                    (queryParams.get('season-type') == "all" ? " Season Types" : " Season"));
-                if (queryParams.get('career-season') == "season") {
-                    innerHTML += (" | " + type);
-                } else {
-                    innerHTML += (" | " + type);
-                }
-            } else if (queryParams.get('subject') == 'team') {
-                innerHTML += ((queryParams.get('career-season') == "career" ? "All-Time" : "Season") + " Statistics"); 
-            }
-
-            innerHTML += '<div class="little-br"></div>';
-
-            if (queryParams.get('career-season') == "season") {
-                innerHTML += ((queryParams.get('mode') == "find" ? timespan1 : (timespan1 + " vs. " + timespan2)));
-            }
-            innerHTML += '</td></tr>';
-            recents = recents.substring(recents.indexOf('|') + 1);
-        }
-        innerHTML += '</table><br><button onclick="clearRecentQueries()">Clear Recents</button>';
+        let recents = localStorage.getItem("recents") + '|';
+        let innerHTML = compileQueriesTable(recents, "clearRecentQueries", "Recents");
         document.getElementById("recent-queries").innerHTML = innerHTML;
     }
     
 }
 
-// Updates favorites
+// Updates favorite
+async function updateFavoriteQueries(makeFavorite) {
+    
+    let favorites = currentFavorites;
+    if (makeFavorite) {
+        if (favorites == "NONE") {
+            favorites = currentQuery;
+        } else if (!favorites.includes(currentQuery)) {
+            favorites = `${currentQuery}|${favorites}`;
+        }
+    } else {
+        if (favorites.includes(currentQuery)) {
+            favorites = favorites.substring(0, favorites.indexOf(currentQuery)) + favorites.substring(favorites.indexOf(currentQuery) + currentQuery.length);
+        }
+        while (favorites.indexOf('||') != -1) {
+            favorites = favorites.replace('||', '|');
+        }
+        if (favorites.charAt(favorites.length - 1) == '|'){
+            favorites = favorites.substring(0, favorites.length - 1)
+        }
+        if (favorites.charAt(0) == '|'){
+            favorites = favorites.substring(1)
+        }
+        if (favorites == ""){
+            favorites = "NONE";
+        }
+    }
 
+    // Send updated favorites
+    await updateFavorites(favorites);
+
+    // Set new favorite to current
+    currentFavorites = await getFavorites();
+
+}
+
+// Clears favorites
+async function clearFavoriteQueries() {
+
+    await updateFavorites('NONE');
+    loadFavoriteQueries();
+
+}
 
 // Load favorites
 async function loadFavoriteQueries() {
 
-
     if (sessionStorage.getItem("logged-in") == null) {
         document.getElementById("favorite-queries").innerHTML = "Need to make an account or sign in to show favorites.";
+    } else {
+        
+        // Get favorites
+        let favorites = await getFavorites();
+        
+        if (favorites == 'NONE') {
+            document.getElementById("favorite-queries").innerHTML = "No favorite queries to show.";
+        } else {
+            favorites = favorites + "|";
+            let innerHTML = compileQueriesTable(favorites, "clearFavoriteQueries", "Favorites");
+            document.getElementById("favorite-queries").innerHTML = innerHTML;
+        }
+
     }
-    // No favorite queries to show.
 
 }
 
+// Compile queries table
+function compileQueriesTable(queryList, clearMethodName, queryType) {
+
+    innerHTML = '<table>';    
+    while (queryList.indexOf('|') != -1) {
+        let query = queryList.substring(0, queryList.indexOf('|'));
+        const queryParams = new URLSearchParams(query);
+        let from1 = queryParams.get('from-1');
+        let to1 = queryParams.get('to-1');
+        let from2 = queryParams.get('from-2');
+        let to2 = queryParams.get('to-2');
+        let timespan1 = null;
+        let timespan2 = null;
+        if (from1 != null && to1 != null) {
+            timespan1 = ((from1 != "None" && to1 != "None") ? (from1 + " to " + to1) : (from1 != "None" && to1 == "None") ? ("Since " + from1) : "All Seasons");
+        }
+        if (from2 != null && to2 != null) {
+            timespan2 = ((from2 != "None" && to2 != "None") ? (from2 + " to " + to2) : (from2 != "None" && to2 == "None") ? ("Since " + from2) : "All Seasons");
+        }
+        innerHTML += `<tr><td id="query-link"><a href="query.html?${query}">`;
+        if (queryParams.get('mode') == 'find') {
+            innerHTML += `${queryParams.get('name-1')}`;
+        } else if (queryParams.get('mode') == 'compare') {
+            innerHTML += `${queryParams.get('name-1')} vs. ${queryParams.get('name-2')}`;
+        }
+        
+        innerHTML += '<div class="little-br"></div>';
+        if (queryParams.get('subject') == 'player') {
+            innerHTML += ((queryParams.get('career-season') == "career" ? "Career" : "Season") + " Statistics");
+            let type = ((queryParams.get('season-type') == "all" ? "All" : queryParams.get('season-type') == "RegularSeason" ? "Regular" : queryParams.get('season-type') == "PostSeason" ? "Post" : queryParams.get('season-type') == "AllStarSeason" ? "All-Star" : queryParams.get('season-type') == "CollegeSeason" ? "College" : "Showcase") +
+                (queryParams.get('season-type') == "all" ? " Season Types" : " Season"));
+            if (queryParams.get('career-season') == "season") {
+                innerHTML += (" | " + type);
+            } else {
+                innerHTML += (" | " + type);
+            }
+        } else if (queryParams.get('subject') == 'team') {
+            innerHTML += ((queryParams.get('career-season') == "career" ? "All-Time" : "Season") + " Statistics"); 
+        }
+        innerHTML += '<div class="little-br"></div>';
+        if (queryParams.get('career-season') == "season") {
+            innerHTML += ((queryParams.get('mode') == "find" ? timespan1 : (timespan1 + " vs. " + timespan2)));
+        }
+        innerHTML += '</a></td></tr>';
+        queryList = queryList.substring(queryList.indexOf('|') + 1);
+    }
+    innerHTML += `</table><br><button onclick="${clearMethodName}()">Clear ${queryType}</button>`;
+    return innerHTML;
+
+}
 
 // Get player info
 async function getPlayerInfo() {
@@ -436,6 +514,7 @@ async function getPlayerStats() {
     // Setup
     manageFooterBuffer(500);
     document.getElementById("display-player-stats").innerHTML = "Loading...";
+    document.getElementById("favorite-block").style.display = "none";
     let innerHTML = "";
 
     // Get inputs
@@ -464,14 +543,32 @@ async function getPlayerStats() {
     }
     manageFooterBuffer(500 - document.getElementById("display-player-stats").offsetHeight);
 
+    // Set current query
+    currentQuery = `subject=player&mode=${mode}&name-1=${inputs[1][0]}&name-2=${mode == "find" ? "null" : inputs[1][1]}&career-season=${inputs[2]}&from-1=${inputs[3][0]}&to-1=${inputs[4][0]}&from-2=${inputs[3][1]}&to-2=${inputs[4][1]}&season-type=${inputs[5]}`;
+    
     // Add query to recents
-    let query = `subject=player&mode=${mode}&name-1=${inputs[1][0]}&name-2=${mode == "find" ? "null" : inputs[1][1]}&career-season=${inputs[2]}&from-1=${inputs[3][0]}&to-1=${inputs[4][0]}&from-2=${inputs[3][1]}&to-2=${inputs[4][1]}&season-type=${inputs[5]}`;
-    updateRecentQueries(query);
+    updateRecentQueries();
+
+    // Show/Check favorite if needed
+    if (sessionStorage.getItem("logged-in") == 'true') {
+
+        currentFavorites = await getFavorites();
+
+        if (currentFavorites.includes(currentQuery)){
+            document.getElementById("favorite").checked = true;
+        } else {
+            document.getElementById("favorite").checked = false;
+        }
+        document.getElementById("favorite-block").style.display = "block";
+
+    } else {
+        document.getElementById("favorite-block").style.display = "none";
+        document.getElementById("favorite").checked = false;
+    }
     
 }
 
 // Compile player statistics for display
-// (MIGHT WANT TO ADD OVERALL STATS FOR SEASON PERIOD LIKE TEAM STATS)
 function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, to1, from2, to2, seasonType, stats1, stats2) {
 
     // Variables for easier use
@@ -648,8 +745,6 @@ function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, 
         <td>${textHTML[1]}</td>
         </tr></table>`;
     }
-    innerHTML = `<div id="favorite-checkbox">` +
-    `</div>${innerHTML}`
     return innerHTML;
 
 }
@@ -681,6 +776,7 @@ async function getTeamStats() {
     // Setup
     manageFooterBuffer(500);
     document.getElementById("display-team-stats").innerHTML = "Loading...";
+    document.getElementById("favorite-block").style.display = "none";
     let innerHTML = "";
 
     // Get inputs
@@ -709,9 +805,28 @@ async function getTeamStats() {
     }
     manageFooterBuffer(500 - document.getElementById("display-team-stats").offsetHeight);
 
+    // Set current query
+    currentQuery = `subject=team&mode=${mode}&name-1=${inputs[1][0]}&name-2=${mode == "find" ? "null" : inputs[1][1]}&career-season=${inputs[2]}&from-1=${inputs[3][0]}&to-1=${inputs[4][0]}&from-2=${inputs[3][1]}&to-2=${inputs[4][1]}`;
+    
     // Add query to recents
-    let query = `subject=team&mode=${mode}&name-1=${inputs[1][0]}&name-2=${mode == "find" ? "null" : inputs[1][1]}&career-season=${inputs[2]}&from-1=${inputs[3][0]}&to-1=${inputs[4][0]}&from-2=${inputs[3][1]}&to-2=${inputs[4][1]}`;
-    updateRecentQueries(query);
+    updateRecentQueries();
+
+    // Show/Check favorite if needed
+    if (sessionStorage.getItem("logged-in") == 'true') {
+
+        currentFavorites = await getFavorites();
+
+        if (currentFavorites.includes(currentQuery)){
+            document.getElementById("favorite").checked = true;
+        } else {
+            document.getElementById("favorite").checked = false;
+        }
+        document.getElementById("favorite-block").style.display = "block";
+
+    } else {
+        document.getElementById("favorite-block").style.display = "none";
+        document.getElementById("favorite").checked = false;
+    }
 
 }
 
@@ -881,8 +996,6 @@ function compileTeamStatistics(teamName1, teamName2, careerSeason, from1, to1, f
         <td>${textHTML[1]}</td>
         </tr></table>`;
     }
-    innerHTML = `<div id="favorite-checkbox">` +
-    `</div>${innerHTML}`
     return innerHTML;
 
 }
