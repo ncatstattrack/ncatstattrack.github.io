@@ -544,7 +544,15 @@ async function getPlayerStats() {
     // Compile and display stats
     innerHTML = mode == "find" ? innerHTML = compilePlayerStatistics(inputs[1][0], null, inputs[2], inputs[3][0], inputs[4][0], null, null, inputs[5], stats1, null)
         : compilePlayerStatistics(inputs[1][0], inputs[1][1], inputs[2], inputs[3][0], inputs[4][0], inputs[3][1], inputs[4][1], inputs[5], stats1, stats2);
-    document.getElementById("display-player-stats").innerHTML = innerHTML;
+
+    // Player headshot image(s)
+    const pid1 = playerNameToID.get(inputs[1][0]);
+    const pid2 = mode == "find" ? null : playerNameToID.get(inputs[1][1]);
+    const playerImg = (id, name) => `<img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${id}.png" alt="${name}" onerror="this.style.display='none'" style="height:80px; border-radius:50%; margin-right:8px; vertical-align:middle;">`;
+    const imageHTML = mode == "find"
+        ? `<div style="margin-bottom:10px;">${playerImg(pid1, inputs[1][0])}<strong>${inputs[1][0]}</strong></div>`
+        : `<div style="margin-bottom:10px;">${playerImg(pid1, inputs[1][0])}<strong>${inputs[1][0]}</strong>&nbsp;&nbsp;vs.&nbsp;&nbsp;${playerImg(pid2, inputs[1][1])}<strong>${inputs[1][1]}</strong></div>`;
+    document.getElementById("display-player-stats").innerHTML = imageHTML + innerHTML;
 
     // Adjust as needed
     if (mode === "compare" && inputs[5] === "career") {
@@ -826,7 +834,15 @@ async function getTeamStats() {
     // Compile stats
     innerHTML = mode == "find" ? innerHTML = compileTeamStatistics(inputs[1][0], null, inputs[2], inputs[3][0], inputs[4][0], null, null, stats1, null)
         : compileTeamStatistics(inputs[1][0], inputs[1][1], inputs[2], inputs[3][0], inputs[4][0], inputs[3][1], inputs[4][1], stats1, stats2);
-    document.getElementById("display-team-stats").innerHTML = innerHTML;
+
+    // Team logo image(s)
+    const tid1 = teamNameToID.get(inputs[1][0]);
+    const tid2 = mode == "find" ? null : teamNameToID.get(inputs[1][1]);
+    const teamImg = (id, name) => `<img src="https://cdn.nba.com/logos/nba/${id}/global/L/logo.svg" alt="${name}" onerror="this.style.display='none'" style="height:60px; margin-right:8px; vertical-align:middle;">`;
+    const teamImageHTML = mode == "find"
+        ? `<div style="margin-bottom:10px;">${teamImg(tid1, inputs[1][0])}<strong>${inputs[1][0]}</strong></div>`
+        : `<div style="margin-bottom:10px;">${teamImg(tid1, inputs[1][0])}<strong>${inputs[1][0]}</strong>&nbsp;&nbsp;vs.&nbsp;&nbsp;${teamImg(tid2, inputs[1][1])}<strong>${inputs[1][1]}</strong></div>`;
+    document.getElementById("display-team-stats").innerHTML = teamImageHTML + innerHTML;
 
     // Adjust as needed
     if (mode === "compare" && inputs[2] === "career") {
