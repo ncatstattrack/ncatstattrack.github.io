@@ -26,7 +26,7 @@
 
     <!-- Navigation -->
     <nav>
-        <a href=# onclick="return false;">Home</a> |
+        <a href="index.html">Home</a> |
         <a href="players.html">Players</a> |
         <a href="teams.html">Teams</a> |
         <a href="thestats.html">The Stats</a> |
@@ -43,10 +43,22 @@
         <label for="login-password">Password:</label>
         <input type="text" name="login-password" id="login-password" required></input>
         <br><br>
-        <button onclick="">LOGIN</button>
+        <button onclick="loginUser()">LOGIN</button>
+        <br>
+        <p id="input-warning" style="display: none;">
+            Username and Password Must:<br>
+            - Have 8 to 20 characters<br>
+            - Only contain A-Z, a-z, 0-9<br>
+            - Passwords may have special<br>
+            characters !, @, #, $, %, &, and *
+        </p>
+        <br>
+        <p id="message-box"></p>
+        <br>
+        <p>Don't have an account? Sign up <a id="signup-link" href="signup.html">here</a>.</p>
     </div>
     
-    <!-- Footer Buffer (Probably Temporary) -->
+    <!-- Footer Buffer -->
     <div id="footer-buffer">
     </div>
 

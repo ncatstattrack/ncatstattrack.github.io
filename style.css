@@ -1,4 +1,13 @@
 
+/* ── CSS Variables ── */
+:root {
+    --surface:   #181c27;
+    --border:    rgba(255,255,255,0.08);
+    --orange:    #ff6a1a;
+    --text-dim:  rgba(232,234,240,0.55);
+    --font:      'DM Sans', sans-serif;
+}
+
 header {
     box-shadow: 0 -5vh 0 7vh darkorange;
     background-color: darkorange;
@@ -42,25 +51,13 @@ nav a:hover {
     font-family: Arial;
 }
 
-#footer-buffer {
-    height: 500px;
+#signup-link {
+    color: blue;
 }
 
-footer {
-    box-shadow: 0 50vh 0 50vh #242841;
-    background-color: #242841;
-    color: aquamarine;
-    font-family: Arial;
+#signup-link:visited {
+    color: blue;
 }
-
-footer a {
-    color: cornflowerblue;
-}
-
-footer a:visited {
-    color: cornflowerblue;
-}
-
 .simple-text {
     width: 725px;
     font-family: Arial;
@@ -134,4 +131,52 @@ footer a:visited {
   margin-left: -3px;
   margin-right: 300px;
   top: 0;
+}
+
+/* ── Footer ── */
+/*
+footer {
+    box-shadow: 0 50vh 0 50vh #242841;
+    background-color: #242841;
+    color: aquamarine;
+    font-family: Arial;
+}
+
+footer a {
+    color: cornflowerblue;
+}
+
+footer a:visited {
+    color: cornflowerblue;
+}
+*/
+#footer-buffer {
+    height: 500px;
+}
+footer {
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  box-shadow: 0 50vh 0 50vh var(--surface) !important;
+  border-top: 1px solid var(--border) !important;
+  color: var(--text-dim) !important;
+  font-family: var(--font) !important;
+  padding: 20px 40px !important;
+  text-align: center;
+}
+
+footer p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+footer a,
+footer a:visited {
+  color: var(--orange) !important;
+  text-decoration: none !important;
+  font-weight: 500;
+}
+
+footer a:hover {
+  text-decoration: underline !important;
 }

@@ -1,6 +1,9 @@
+
 // Global Variables
 let mode = null;
 let subject = null;
+let currentQuery = null;
+let currentFavorites = null;
 let numSeasonTables = new Object({
     "TeamSeasonTable": null
 });
@@ -38,7 +41,7 @@ const playerSeasonTypeToSeasonTableName = new Object({
     "SeasonTotalsShowcaseSeason" : "PlayerShowcaseSeasonTable"
 });
 
-// Caching Variables
+// ID Variables
 let playerNames = null;
 let playerNameToID = null;
 let teamNames = null;
@@ -51,20 +54,29 @@ let teamNameToID = null;
 window.addEventListener("load", function() {
 
     currentURL = window.location.href;
-    // Finish this
-    if (currentURL.indexOf("/index.html") != -1 || currentURL.indexOf("/aboutus.html") != -1 || currentURL.indexOf("/thestats.html") != -1) {
-        helloWorld();
-    } else if (currentURL.indexOf("/players.html") != -1) {
+    if (currentURL.indexOf("/signup.html") == -1 && currentURL.indexOf("/login.html") == -1 && currentURL.indexOf("/account.html") == -1) {
+        loginLink();
+    }
+    if (currentURL.indexOf("/index.html") != -1 || currentURL == (window.location.origin + "/") || currentURL == window.location.origin) {
+        loadRecentQueries();
+        loadFavoriteQueries();
+    }
+    if (currentURL.indexOf("/players.html") != -1) {
         getPlayerInfo();
-    } else if (currentURL.indexOf("/teams.html") != -1) {
+    }
+    if (currentURL.indexOf("/teams.html") != -1) {
         getTeamInfo();
     }
-    loginLink();
+    if (currentURL.indexOf("/query.html") != -1) {
+        queryPageSetup();
+    }
 
 });
 
-// Display/Hide find season range
+// Listens to content
 window.addEventListener("DOMContentLoaded", function() {
+    
+    // Display/Hide find season range
     if (document.getElementById("find-season")) {
         document.getElementById("find-season").addEventListener("change", function() {
             if (this.checked) {
@@ -93,15 +105,382 @@ window.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
+    
+    // Runs on change to checkbox
+    if (document.getElementById("favorite")) {
+        document.getElementById("favorite").addEventListener("change", function () {
+            updateFavoriteQueries(this.checked);
+        });
+    }
+
 });
 
 
 // Website Scriting
 // Changes login link depending on user login status
-function loginLink() {
+async function loginLink() {
 
     // Users who are logged in
-    //document.getElementById("login-container").innerHTML = '';
+    if (sessionStorage.getItem("logged-in") == 'true') {
+        document.getElementById("login-container").innerHTML = '<a href="account.html">ACCOUNT</a>';
+    } else {
+        document.getElementById("login-container").innerHTML = '<a href="login.html">LOGIN</a>';
+    }
+
+}
+
+// New user signup
+async function registerUser() {
+    
+    username = document.getElementById("login-username").value;
+    password = document.getElementById("login-password").value;
+    if (!validUserPass(username, password)) {
+        return;
+    }
+
+    result = await userSignup(username, password);
+    document.getElementById("message-box").innerHTML = result;
+
+}
+
+// User login
+async function loginUser() {
+    
+    username = document.getElementById("login-username").value;
+    password = document.getElementById("login-password").value;
+    if (!validUserPass(username, password)) {
+        return;
+    }
+
+    result = await userLogin(username, password);
+    if (result == "Successful Login"){
+        window.location.href = "index.html";
+    } else {
+        document.getElementById("message-box").innerHTML = result;
+    }
+
+}
+
+// Validate username and password
+function validUserPass(username, password) {
+
+    document.getElementById("input-warning").style.display = "none";
+    document.getElementById("message-box").innerHTML = "";
+    if (username.match(/^[A-Za-z0-9]{8,20}$/) == null || password.match(/^[A-Za-z0-9!@#$%&*]{8,20}$/) == null) {
+        document.getElementById("input-warning").style.display = "block";
+        return false;
+    }
+    return true;
+
+}
+
+// Query page setup
+async function queryPageSetup() {
+
+    // Get query
+    let temp = window.location.search;
+    currentQuery = decodeURIComponent(temp.substring(1));
+
+    // Check and update recent
+    recents = localStorage.getItem("recents");
+    if (recents != null && recents.includes(currentQuery)) {
+        updateRecentQueries();
+    }
+
+    // Query display
+    const queryParams = new URLSearchParams(currentQuery);
+    subject = queryParams.get('subject');
+    mode = queryParams.get('mode');
+    let name1 = queryParams.get('name-1');
+    let name2 = queryParams.get('name-2');
+    let careerSeason = queryParams.get('career-season');
+    let from1 = queryParams.get('from-1');
+    let to1 = queryParams.get('to-1');
+    let from2 = queryParams.get('from-2');
+    let to2 = queryParams.get('to-2');
+    let seasonType = queryParams.get('season-type');
+
+    let timespan1 = null;
+    let timespan2 = null;
+    if (from1 != null && to1 != null) {
+        timespan1 = ((from1 != "None" && to1 != "None") ? (from1 + " to " + to1) : (from1 != "None" && to1 == "None") ? ("Since " + from1) : "All Seasons");
+    }
+    if (from2 != null && to2 != null) {
+        timespan2 = ((from2 != "None" && to2 != "None") ? (from2 + " to " + to2) : (from2 != "None" && to2 == "None") ? ("Since " + from2) : "All Seasons");
+    }
+
+    // Call for player info
+    await callPlayerInfo();
+
+    // Call for team info
+    await callTeamInfo();
+    
+    if (subject === "player") {
+
+        // Correct names (for potential case change in url)
+        for (let i = 0; i < playerNames.length; i++) {
+            if (name1.toLowerCase() == playerNames[i].toLowerCase()) {
+                name1 = playerNames[i];
+            }
+            if (name2 != null && name2.toLowerCase() == playerNames[i].toLowerCase()) {
+                name2 = playerNames[i];
+            }
+        }
+
+        // Title
+        document.getElementById("query-title").innerHTML =
+            mode == "find" ? name1 : (name1 + " vs. " + name2);
+        document.getElementById("query-subtitle").innerHTML =
+            (careerSeason == "career" ? "Career" : "Season") + " Statistics<br>" + 
+            (seasonType == "all" ? "All" : seasonType == "RegularSeason" ? "Regular" : seasonType == "PostSeason" ? "Post" : seasonType == "AllStarSeason" ? "All-Star" : seasonType == "CollegeSeason" ? "College" : "Showcase") +
+            (seasonType == "all" ? " Season Types<br>" : " Season<br>") +
+            (careerSeason == "career" ? "" : (mode == "find" ? timespan1 : (timespan1 + " vs. " + timespan2)));
+            
+        // Get stats
+        const stats1 = await callPlayerStats(playerNameToID.get(name1), 0);
+        const stats2 = mode == "find" ? null : await callPlayerStats(playerNameToID.get(name2), 0);
+        if (stats1 === "FAIL" || (mode === "compare" && stats2 === "FAIL")) {
+            document.getElementById("display-stats").innerHTML = "Failed to retrieve data";
+            return;
+        }
+
+        // Compile and display stats
+        innerHTML = mode == "find" ? innerHTML = compilePlayerStatistics(name1, null, careerSeason, from1, to1, null, null, seasonType, stats1, null)
+            : compilePlayerStatistics(name1, name2, careerSeason, from1, to1, from2, to2, seasonType, stats1, stats2);
+        document.getElementById("display-stats").innerHTML = innerHTML;
+
+        // Adjust as needed
+        if (mode === "compare" && careerSeason === "career") {
+            document.getElementById("compare-line").style.height = document.getElementById("display-stats").offsetHeight.toString() + "px";
+        }
+        manageFooterBuffer(500 - document.getElementById("display-stats").offsetHeight);
+
+    } else if (subject === "team") {
+        
+        // Correct names (for potential case change in url)
+        for (let i = 0; i < teamNames.length; i++) {
+            if (name1.toLowerCase() == teamNames[i].toLowerCase()) {
+                name1 = teamNames[i];
+            }
+            if (name2 != null && name2.toLowerCase() == teamNames[i].toLowerCase()) {
+                name2 = teamNames[i];
+            }
+        }
+
+        // Title
+        document.getElementById("query-title").innerHTML =
+            (mode == "find" ? name1 : (name1 + " vs. " + name2));
+        document.getElementById("query-subtitle").innerHTML = 
+            (careerSeason == "career" ? "All-Time" : "Season") + " Statistics<br>" +
+            (careerSeason == "career" ? "" : (mode == "find" ? timespan1 : (timespan1 + " vs. " + timespan2)));
+
+        // Get stats
+        const stats1 = await callTeamStats(teamNameToID.get(name1), 0);
+        const stats2 = mode == "find" ? null : await callTeamStats(teamNameToID.get(name2), 0);
+        if (stats1 === "FAIL" || (mode === "compare" && stats2 === "FAIL")) {
+            document.getElementById("display-stats").innerHTML = "Failed to retrieve data";
+            return;
+        }
+
+        // Compile stats
+        innerHTML = mode == "find" ? innerHTML = compileTeamStatistics(name1, null, careerSeason, from1, to1, null, null, stats1, null)
+            : compileTeamStatistics(name1, name2, careerSeason, from1, to1, from2, to2, stats1, stats2);
+        document.getElementById("display-stats").innerHTML = innerHTML;
+
+        // Adjust as needed
+        if (mode === "compare" && careerSeason === "career") {
+            document.getElementById("compare-line").style.height = document.getElementById("display-stats").offsetHeight.toString() + "px";
+        }
+        manageFooterBuffer(500 - document.getElementById("display-stats").offsetHeight);
+
+    }
+    
+    // Show/Check favorite if needed
+    if (sessionStorage.getItem("logged-in") == 'true') {
+
+        currentFavorites = await getFavorites();
+
+        if (currentFavorites.includes(currentQuery)) {
+            document.getElementById("favorite").checked = true;
+        } else {
+            document.getElementById("favorite").checked = false;
+        }
+        document.getElementById("favorite-block").style.display = "block";
+
+    } else {
+        document.getElementById("favorite-block").style.display = "none";
+        document.getElementById("favorite").checked = false;
+    }
+
+}
+
+// Updates recents
+function updateRecentQueries() {
+
+    let recents = localStorage.getItem("recents");
+    if (recents == null) {
+        recents = currentQuery;
+    } else if (!recents.includes(currentQuery)) {
+        recents = `${currentQuery}|${recents}`;
+    } else if (recents.includes(currentQuery)) {
+        recents = recents.substring(0, recents.indexOf(currentQuery)) + recents.substring(recents.indexOf(currentQuery) + currentQuery.length);
+        while (recents.indexOf('||') != -1) {
+            recents = recents.replace('||', '|');
+        }
+        if (recents.charAt(recents.length - 1) == '|'){
+            recents = recents.substring(0, recents.length - 1)
+        }
+        if (recents.charAt(0) == '|'){
+            recents = recents.substring(1)
+        }
+        if (recents == ""){
+            recents = currentQuery;
+        } else {
+            recents = `${currentQuery}|${recents}`;
+        }
+    }
+    while (recents.split('|').length - 1 >= 10) {
+        recents = recents.substring(0, recents.lastIndexOf('|'));
+    }
+    localStorage.setItem("recents", recents);
+
+}
+
+// Clears recents
+function clearRecentQueries() {
+
+    localStorage.removeItem("recents");
+    loadRecentQueries();
+
+}
+
+// Load recents
+function loadRecentQueries() {
+    
+    if (localStorage.getItem("recents") == null) {
+        document.getElementById("recent-queries").innerHTML = "No recent queries to show.";
+    } else {
+        let recents = localStorage.getItem("recents") + '|';
+        let innerHTML = compileQueriesTable(recents, "clearRecentQueries", "Recents");
+        document.getElementById("recent-queries").innerHTML = innerHTML;
+    }
+    
+}
+
+// Updates favorite
+async function updateFavoriteQueries(makeFavorite) {
+    
+    let favorites = currentFavorites;
+    if (makeFavorite) {
+        if (favorites == "NONE") {
+            favorites = currentQuery;
+        } else if (!favorites.includes(currentQuery)) {
+            favorites = `${currentQuery}|${favorites}`;
+        }
+    } else {
+        if (favorites.includes(currentQuery)) {
+            favorites = favorites.substring(0, favorites.indexOf(currentQuery)) + favorites.substring(favorites.indexOf(currentQuery) + currentQuery.length);
+        }
+        while (favorites.indexOf('||') != -1) {
+            favorites = favorites.replace('||', '|');
+        }
+        if (favorites.charAt(favorites.length - 1) == '|'){
+            favorites = favorites.substring(0, favorites.length - 1)
+        }
+        if (favorites.charAt(0) == '|'){
+            favorites = favorites.substring(1)
+        }
+        if (favorites == ""){
+            favorites = "NONE";
+        }
+    }
+
+    // Send updated favorites
+    await updateFavorites(favorites);
+
+    // Set new favorite to current
+    currentFavorites = await getFavorites();
+
+}
+
+// Clears favorites
+async function clearFavoriteQueries() {
+
+    await updateFavorites('NONE');
+    loadFavoriteQueries();
+
+}
+
+// Load favorites
+async function loadFavoriteQueries() {
+
+    if (sessionStorage.getItem("logged-in") == null) {
+        document.getElementById("favorite-queries").innerHTML = "Need to make an account or sign in to show favorites.";
+    } else {
+        
+        // Get favorites
+        let favorites = await getFavorites();
+        
+        if (favorites == 'NONE') {
+            document.getElementById("favorite-queries").innerHTML = "No favorite queries to show.";
+        } else {
+            favorites = favorites + "|";
+            let innerHTML = compileQueriesTable(favorites, "clearFavoriteQueries", "Favorites");
+            document.getElementById("favorite-queries").innerHTML = innerHTML;
+        }
+
+    }
+
+}
+
+// Compile queries table
+function compileQueriesTable(queryList, clearMethodName, queryType) {
+
+    innerHTML = '<table>';    
+    while (queryList.indexOf('|') != -1) {
+        let query = queryList.substring(0, queryList.indexOf('|'));
+        const queryParams = new URLSearchParams(query);
+        let from1 = queryParams.get('from-1');
+        let to1 = queryParams.get('to-1');
+        let from2 = queryParams.get('from-2');
+        let to2 = queryParams.get('to-2');
+        let timespan1 = null;
+        let timespan2 = null;
+        if (from1 != null && to1 != null) {
+            timespan1 = ((from1 != "None" && to1 != "None") ? (from1 + " to " + to1) : (from1 != "None" && to1 == "None") ? ("Since " + from1) : "All Seasons");
+        }
+        if (from2 != null && to2 != null) {
+            timespan2 = ((from2 != "None" && to2 != "None") ? (from2 + " to " + to2) : (from2 != "None" && to2 == "None") ? ("Since " + from2) : "All Seasons");
+        }
+        innerHTML += `<tr><td id="query-link"><a href="query.html?${query}">`;
+        if (queryParams.get('mode') == 'find') {
+            innerHTML += `${queryParams.get('name-1')}`;
+        } else if (queryParams.get('mode') == 'compare') {
+            innerHTML += `${queryParams.get('name-1')} vs. ${queryParams.get('name-2')}`;
+        }
+        
+        innerHTML += '<div class="little-br"></div>';
+        if (queryParams.get('subject') == 'player') {
+            innerHTML += ((queryParams.get('career-season') == "career" ? "Career" : "Season") + " Statistics");
+            let type = ((queryParams.get('season-type') == "all" ? "All" : queryParams.get('season-type') == "RegularSeason" ? "Regular" : queryParams.get('season-type') == "PostSeason" ? "Post" : queryParams.get('season-type') == "AllStarSeason" ? "All-Star" : queryParams.get('season-type') == "CollegeSeason" ? "College" : "Showcase") +
+                (queryParams.get('season-type') == "all" ? " Season Types" : " Season"));
+            if (queryParams.get('career-season') == "season") {
+                innerHTML += (" | " + type);
+            } else {
+                innerHTML += (" | " + type);
+            }
+        } else if (queryParams.get('subject') == 'team') {
+            innerHTML += ((queryParams.get('career-season') == "career" ? "All-Time" : "Season") + " Statistics"); 
+        }
+        innerHTML += '<div class="little-br"></div>';
+        if (queryParams.get('career-season') == "season") {
+            innerHTML += ((queryParams.get('mode') == "find" ? timespan1 : (timespan1 + " vs. " + timespan2)));
+        }
+        innerHTML += '</a></td></tr>';
+        queryList = queryList.substring(queryList.indexOf('|') + 1);
+    }
+    innerHTML += `</table><br><button onclick="${clearMethodName}()">Clear ${queryType}</button>`;
+    return innerHTML;
 
 }
 
@@ -135,6 +514,7 @@ async function getPlayerStats() {
     // Setup
     manageFooterBuffer(500);
     document.getElementById("display-player-stats").innerHTML = "Loading...";
+    document.getElementById("favorite-block").style.display = "none";
     let innerHTML = "";
 
     // Get inputs
@@ -162,11 +542,33 @@ async function getPlayerStats() {
         document.getElementById("compare-line").style.height = document.getElementById("display-player-stats").offsetHeight.toString() + "px";
     }
     manageFooterBuffer(500 - document.getElementById("display-player-stats").offsetHeight);
+
+    // Set current query
+    currentQuery = `subject=player&mode=${mode}&name-1=${inputs[1][0]}&name-2=${mode == "find" ? "null" : inputs[1][1]}&career-season=${inputs[2]}&from-1=${inputs[3][0]}&to-1=${inputs[4][0]}&from-2=${inputs[3][1]}&to-2=${inputs[4][1]}&season-type=${inputs[5]}`;
+    
+    // Add query to recents
+    updateRecentQueries();
+
+    // Show/Check favorite if needed
+    if (sessionStorage.getItem("logged-in") == 'true') {
+
+        currentFavorites = await getFavorites();
+
+        if (currentFavorites.includes(currentQuery)){
+            document.getElementById("favorite").checked = true;
+        } else {
+            document.getElementById("favorite").checked = false;
+        }
+        document.getElementById("favorite-block").style.display = "block";
+
+    } else {
+        document.getElementById("favorite-block").style.display = "none";
+        document.getElementById("favorite").checked = false;
+    }
     
 }
 
 // Compile player statistics for display
-// (MIGHT WANT TO ADD OVERALL STATS FOR SEASON PERIOD LIKE TEAM STATS)
 function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, to1, from2, to2, seasonType, stats1, stats2) {
 
     // Variables for easier use
@@ -181,57 +583,37 @@ function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, 
     if (careerSeason === "career") {
 
         for (let s = 0; s < (mode == "find" ? 1 : 2); s++) {
-            let categories = [];
             for (let i = 0; i < stats[s].resultSets.length; i++) {
                 let statSubset = stats[s].resultSets[i];
-                if (statSubset.name.indexOf("CareerTotals") != -1 && statSubset.rowSet.length != 0 && (seasonType === "all" || statSubset.name.indexOf(seasonType) != -1)) {
-                    const fgPCT  = (statSubset.rowSet[0][8]  * 100).toFixed(2);
+                if (statSubset.name.indexOf("CareerTotals") != -1 && statSubset.rowSet.length != 0 && (seasonType === "all" || statSubset.name.indexOf(seasonType) != -1)
+                ){
+                    textHTML[s] += `<h3>${playerHeaderMap.get(statSubset.name)}</h3>`;
+                    textHTML[s] += `<p>Games Played: ${statSubset.rowSet[0][3]}</p>`;
+                    textHTML[s] += `<p>Games Started: ${statSubset.rowSet[0][4]}</p>`;
+                    textHTML[s] += `<p>Minutes Played: ${statSubset.rowSet[0][5]}</p>`;
+                    textHTML[s] += `<p>Field Goals Attempted: ${statSubset.rowSet[0][7]}</p>`;
+                    textHTML[s] += `<p>Field Goals Made: ${statSubset.rowSet[0][6]}</p>`;
+                    const fgPCT = (statSubset.rowSet[0][8] * 100).toFixed(2);
+                    textHTML[s] += `<p>Field Goal Percentage: ${fgPCT}%</p>`;
+                    textHTML[s] += `<p>Field Goals (3 Pointers) Attempted: ${statSubset.rowSet[0][10]}</p>`;
+                    textHTML[s] += `<p>Field Goals (3 Pointers) Made: ${statSubset.rowSet[0][9]}</p>`;
                     const fg3PCT = (statSubset.rowSet[0][11] * 100).toFixed(2);
-                    const ftPCT  = (statSubset.rowSet[0][14] * 100).toFixed(2);
-                    const cards = [
-                        { label: "Games Played",    value: statSubset.rowSet[0][3] },
-                        { label: "Games Started",   value: statSubset.rowSet[0][4] },
-                        { label: "Minutes Played",  value: statSubset.rowSet[0][5] },
-                        { label: "FG Made",         value: statSubset.rowSet[0][6] },
-                        { label: "FG Attempted",    value: statSubset.rowSet[0][7] },
-                        { label: "FG%",             value: fgPCT + "%" },
-                        { label: "3PT Made",        value: statSubset.rowSet[0][9] },
-                        { label: "3PT Attempted",   value: statSubset.rowSet[0][10] },
-                        { label: "3PT%",            value: fg3PCT + "%" },
-                        { label: "FT Made",         value: statSubset.rowSet[0][12] },
-                        { label: "FT Attempted",    value: statSubset.rowSet[0][13] },
-                        { label: "FT%",             value: ftPCT + "%" },
-                        { label: "Offensive Reb",   value: statSubset.rowSet[0][15] },
-                        { label: "Defensive Reb",   value: statSubset.rowSet[0][16] },
-                        { label: "Total Rebounds",  value: statSubset.rowSet[0][17] },
-                        { label: "Assists",         value: statSubset.rowSet[0][18] },
-                        { label: "Steals",          value: statSubset.rowSet[0][19] },
-                        { label: "Blocks",          value: statSubset.rowSet[0][20] },
-                        { label: "Turnovers",       value: statSubset.rowSet[0][21] },
-                        { label: "Personal Fouls",  value: statSubset.rowSet[0][22] },
-                        { label: "Points Scored",   value: statSubset.rowSet[0][23] },
-                    ];
-                    categories.push({ name: playerHeaderMap.get(statSubset.name), cards });
+                    textHTML[s] += `<p>Field Goal (3 Pointer) Percentage: ${fg3PCT}%</p>`;
+                    textHTML[s] += `<p>Free Throws Attempted: ${statSubset.rowSet[0][13]}</p>`;
+                    textHTML[s] += `<p>Free Throws Made: ${statSubset.rowSet[0][12]}</p>`;
+                    const ftPCT = (statSubset.rowSet[0][14] * 100).toFixed(2);
+                    textHTML[s] += `<p>Free Throw Percentage: ${ftPCT}%</p>`;
+                    textHTML[s] += `<p>Total Rebounds: ${statSubset.rowSet[0][17]}</p>`;
+                    textHTML[s] += `<p>Offensive Rebounds: ${statSubset.rowSet[0][15]}</p>`;
+                    textHTML[s] += `<p>Defensive Rebounds: ${statSubset.rowSet[0][16]}</p>`;
+                    textHTML[s] += `<p>Assists: ${statSubset.rowSet[0][18]}</p>`;
+                    textHTML[s] += `<p>Steals: ${statSubset.rowSet[0][19]}</p>`;
+                    textHTML[s] += `<p>Blocks: ${statSubset.rowSet[0][20]}</p>`;
+                    textHTML[s] += `<p>Turnovers: ${statSubset.rowSet[0][21]}</p>`;
+                    textHTML[s] += `<p>Personal Fouls: ${statSubset.rowSet[0][22]}</p>`;
+                    textHTML[s] += `<p>Points Scored: ${statSubset.rowSet[0][23]}</p>`;
+                    textHTML[s] += "<br>";
                 }
-            }
-            if (categories.length > 0) {
-                const uid = `player-tabs-${s}`;
-                let tabBtns = `<div class="stat-tabs" id="${uid}">`;
-                categories.forEach((cat, idx) => {
-                    tabBtns += `<button class="stat-tab${idx === 0 ? ' active' : ''}" onclick="switchCareerTab('${uid}', ${idx})">${cat.name}</button>`;
-                });
-                tabBtns += `</div>`;
-                let panels = `<div class="stat-panels">`;
-                categories.forEach((cat, idx) => {
-                    panels += `<div class="stat-panel${idx === 0 ? ' active' : ''}" data-tab="${uid}-${idx}">`;
-                    panels += `<div class="stat-cards">`;
-                    cat.cards.forEach(card => {
-                        panels += `<div class="stat-card"><span class="stat-card-label">${card.label}</span><span class="stat-card-value">${card.value}</span></div>`;
-                    });
-                    panels += `</div></div>`;
-                });
-                panels += `</div>`;
-                textHTML[s] = tabBtns + panels;
             }
         }
     
@@ -241,7 +623,6 @@ function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, 
         const teamNum = mode == "find" ? 1 : 2;
         let seasonTypes = [];
         let seasonStats = [[], []];
-        console.log(stats[0].resultSets);
         for (let i = 0; i < stats[0].resultSets.length; i++) {
             let count = 0;
             let buffer = [[], []];
@@ -395,6 +776,7 @@ async function getTeamStats() {
     // Setup
     manageFooterBuffer(500);
     document.getElementById("display-team-stats").innerHTML = "Loading...";
+    document.getElementById("favorite-block").style.display = "none";
     let innerHTML = "";
 
     // Get inputs
@@ -422,6 +804,29 @@ async function getTeamStats() {
         document.getElementById("compare-line").style.height = document.getElementById("display-team-stats").offsetHeight.toString() + "px";
     }
     manageFooterBuffer(500 - document.getElementById("display-team-stats").offsetHeight);
+
+    // Set current query
+    currentQuery = `subject=team&mode=${mode}&name-1=${inputs[1][0]}&name-2=${mode == "find" ? "null" : inputs[1][1]}&career-season=${inputs[2]}&from-1=${inputs[3][0]}&to-1=${inputs[4][0]}&from-2=${inputs[3][1]}&to-2=${inputs[4][1]}`;
+    
+    // Add query to recents
+    updateRecentQueries();
+
+    // Show/Check favorite if needed
+    if (sessionStorage.getItem("logged-in") == 'true') {
+
+        currentFavorites = await getFavorites();
+
+        if (currentFavorites.includes(currentQuery)){
+            document.getElementById("favorite").checked = true;
+        } else {
+            document.getElementById("favorite").checked = false;
+        }
+        document.getElementById("favorite-block").style.display = "block";
+
+    } else {
+        document.getElementById("favorite-block").style.display = "none";
+        document.getElementById("favorite").checked = false;
+    }
 
 }
 
@@ -482,36 +887,28 @@ function compileTeamStatistics(teamName1, teamName2, careerSeason, from1, to1, f
     if (careerSeason === "career") {
 
         for (let s = 0; s < (mode == "find" ? 1 : 2); s++) {
-            const winPCT = ((allTimeData[s][3] / allTimeData[s][2]) * 100).toFixed(2);
-            const cards = [
-                { label: "League Champions",   value: allTimeData[s][0] },
-                { label: "Finals Appearances", value: allTimeData[s][1] },
-                { label: "Win %",              value: winPCT + "%" },
-                { label: "Games Played",       value: allTimeData[s][2] },
-                { label: "Games Won",          value: allTimeData[s][3] },
-                { label: "Games Lost",         value: allTimeData[s][4] },
-                { label: "FG Made",            value: allTimeData[s][5] },
-                { label: "FG Attempted",       value: allTimeData[s][6] },
-                { label: "3PT Made",           value: allTimeData[s][7] },
-                { label: "3PT Attempted",      value: allTimeData[s][8] },
-                { label: "FT Made",            value: allTimeData[s][9] },
-                { label: "FT Attempted",       value: allTimeData[s][10] },
-                { label: "Offensive Reb",      value: allTimeData[s][11] },
-                { label: "Defensive Reb",      value: allTimeData[s][12] },
-                { label: "Total Rebounds",     value: allTimeData[s][13] },
-                { label: "Assists",            value: allTimeData[s][14] },
-                { label: "Personal Fouls",     value: allTimeData[s][15] },
-                { label: "Steals",             value: allTimeData[s][16] },
-                { label: "Turnovers",          value: allTimeData[s][17] },
-                { label: "Blocks",             value: allTimeData[s][18] },
-                { label: "Points Scored",      value: allTimeData[s][19] },
-            ];
-            let cardsHTML = '<div class="stat-cards">';
-            cards.forEach(card => {
-                cardsHTML += `<div class="stat-card"><span class="stat-card-label">${card.label}</span><span class="stat-card-value">${card.value}</span></div>`;
-            });
-            cardsHTML += '</div>';
-            textHTML[s] = cardsHTML;
+            textHTML[s] = `<p>League Champions: ${allTimeData[s][0]}</p>`;
+            textHTML[s] += `<p>Finals Appearances: ${allTimeData[s][1]}</p>`;
+            const winPCT = ((allTimeData[s][3] / allTimeData[s][2])* 100).toFixed(2);
+            textHTML[s] += `<p>Win Percentage: ${winPCT}%</p>`;
+            textHTML[s] += `<p>Games Played: ${allTimeData[s][2]}</p>`;
+            textHTML[s] += `<p>Games Won: ${allTimeData[s][3]}</p>`;
+            textHTML[s] += `<p>Games Lost: ${allTimeData[s][4]}</p>`;
+            textHTML[s] += `<p>Field Goals Made: ${allTimeData[s][5]}</p>`;
+            textHTML[s] += `<p>Field Goals Attempted: ${allTimeData[s][6]}</p>`;
+            textHTML[s] += `<p>Field Goals (3 Pointers) Made: ${allTimeData[s][7]}</p>`;
+            textHTML[s] += `<p>Field Goals (3 Pointers) Attempted: ${allTimeData[s][8]}</p>`;
+            textHTML[s] += `<p>Free Throws Made: ${allTimeData[s][9]}</p>`;
+            textHTML[s] += `<p>Free Throws Attempted: ${allTimeData[s][10]}</p>`;
+            textHTML[s] += `<p>Offensive Rebounds: ${allTimeData[s][11]}</p>`;
+            textHTML[s] += `<p>Defensive Rebounds: ${allTimeData[s][12]}</p>`;
+            textHTML[s] += `<p>Total Rebounds: ${allTimeData[s][13]}</p>`;
+            textHTML[s] += `<p>Assists: ${allTimeData[s][14]}</p>`;
+            textHTML[s] += `<p>Personal Fouls: ${allTimeData[s][15]}</p>`;
+            textHTML[s] += `<p>Steals: ${allTimeData[s][16]}</p>`;
+            textHTML[s] += `<p>Turnovers: ${allTimeData[s][17]}</p>`;
+            textHTML[s] += `<p>Blocks: ${allTimeData[s][18]}</p>`;
+            textHTML[s] += `<p>Points Scored: ${allTimeData[s][19]}</p>`;
         }
 
     // Season stats
@@ -666,16 +1063,16 @@ function getInput(nameCount = 0, careerSeason = false, fromToCount = 0, seasonTy
 
     // From To Timeframe
     if (fromToCount > 0) {
-        let from = [];
-        let to = [];
+        let from = [null, null];
+        let to = [null, null];
         if (returnArray[returnArray.length - 1] === "season") {
             for (let i = 0; i < fromToCount; i++) {
-                from.push(document.getElementById(mode + "-from-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value);
+                from[i] = document.getElementById(mode + "-from-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value;
                 if (from[i].match(seasonRegex) == null) {
                     from[i] = "None";
                     document.getElementById(mode + "-from-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value = from[i];
                 }
-                to.push(document.getElementById(mode + "-to-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value);
+                to[i] = document.getElementById(mode + "-to-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value;
                 if (to[i].match(seasonRegex) == null) {
                     to[i] = "None";
                     document.getElementById(mode + "-to-input" + (nameCount == 1 ? "" : ("-" + (i + 1)))).value = to[i];
@@ -708,20 +1105,6 @@ function getInput(nameCount = 0, careerSeason = false, fromToCount = 0, seasonTy
     // Return
     return returnArray;
 
-}
-
-// Switch career stat tabs
-function switchCareerTab(uid, idx) {
-    // Update tab buttons
-    const tabContainer = document.getElementById(uid);
-    tabContainer.querySelectorAll('.stat-tab').forEach((btn, i) => {
-        btn.classList.toggle('active', i === idx);
-    });
-    // Update panels — panels sit immediately after the tab container
-    const panels = tabContainer.nextElementSibling.querySelectorAll('.stat-panel');
-    panels.forEach((panel, i) => {
-        panel.classList.toggle('active', i === idx);
-    });
 }
 
 // Manages the buffer between content and footer

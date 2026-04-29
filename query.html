@@ -2,7 +2,7 @@
 <html>
 <head>
 
-    <title>StatTrack | About Us</title>
+    <title>StatTrack | Query</title>
     <link rel="stylesheet" href="style.css">
     <script src = "api.js"></script>
     <script src = "script.js"></script>
@@ -30,27 +30,27 @@
         <a href="players.html">Players</a> |
         <a href="teams.html">Teams</a> |
         <a href="thestats.html">The Stats</a> |
-        <a href=# onclick="return false;">About Us</a>
+        <a href="aboutus.html">About Us</a>
         <div id="login-container"></div>
     </nav>
 
     <!-- Page Header -->
     <div class="simple-text">
-        <h2>Sports Data In One Place</h2>
+        <h2 id="query-title">Loading...</h2>
+        <h3 id="query-subtitle"></h3>
     </div>
 
-    <!-- Welcome message -->
-    <div class="simple-text">
-        <p>
-            Welcome to StatTrack!<br><br>
-            Our website is designed to give you an incredible insight into sports data and performance
-            trends. Right now, you can explore all the NBA stats you could ever want and have them
-            presented in a visually clear manner and in one place.<br><br>
-            Whether you're a fan, a student, or an analyst, StatTrack helps you understand the game
-            on a deeper level.<br><br>
-            Hope you enjoy!
-        </p>
-        <img src="stattrack_logo.png" alt="StatTrack Logo" width="300" height="300">
+    <!-- Display area -->
+    <hr>
+    <div id="favorite-block" style="display: none;">
+        &nbsp;&nbsp;
+        <input type="checkbox" id="favorite" name="favorite">
+        <label for="favorite">Favorite</label>
+    </div>
+    <div class="stat-text" id="display-stats">
+    </div>
+    <br><br>
+    <div id="footer-buffer" style="height: 400px;">
     </div>
 
     <!-- Site Footer -->

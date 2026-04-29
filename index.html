@@ -16,13 +16,13 @@
     <script src="script.js"></script>
 </head>
 
-<body onload="helloWorld()">
+<body>
 
     <!-- HOMEPAGE WRAPPER -->
     <main class="home">
 
         <!-- TOP NAV / HEADER -->
-  <header class="home-topbar">
+        <header class="home-topbar">
 
             <div class="home-brand">
                 <img src="stattrack_logo.png" alt="StatTrack Logo" class="home-logo">
@@ -37,10 +37,8 @@
                 <a href="aboutus.html">About Us</a>
             </nav>
 
-            <!-- Login Button (kept from your current version) -->
-            <div id="login-container">
-                <a href="login.html">LOGIN / SIGNUP</a>
-            </div>
+            <!-- Login Button -->
+            <div id="login-container"></div>
 
         </header>
 
@@ -76,7 +74,20 @@
 
     </main>
 
- 
+    <!-- Queries (Recents, Favorites)-->
+    <article id="queries">
+        <br>
+        <h2>Recents</h2>
+        <div id="recent-queries">
+            Loading...
+        </div>
+        <br><br>
+        <h2>Favorites</h2>
+        <div id="favorite-queries">
+            Loading...
+        </div>
+        <br><br>
+    </article>
 
     <!-- Site Footer -->
     <footer>
