@@ -471,3 +471,14 @@ hr {
   font-family: var(--mono);
   line-height: 1;
 }
+
+/* ── Force stat-table to not constrain cards ── */
+table.stat-table,
+table.stat-table tr,
+table.stat-table td {
+  display: block !important;
+  width: 100% !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
