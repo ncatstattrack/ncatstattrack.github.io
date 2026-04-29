@@ -227,8 +227,13 @@ async function queryPageSetup() {
         }
 
         // Title
+        const playerId1 = playerNameToID.get(name1);
+        const playerId2 = mode == "find" ? null : playerNameToID.get(name2);
+        const playerImg = (id) => `<img src="https://cdn.nba.com/headshots/nba/latest/1040x760/${id}.png" onerror="this.style.display='none'" style="height:80px; border-radius:50%; margin-right:10px; vertical-align:middle;">`;
         document.getElementById("query-title").innerHTML =
-            mode == "find" ? name1 : (name1 + " vs. " + name2);
+            mode == "find"
+                ? (playerImg(playerId1) + name1)
+                : (playerImg(playerId1) + name1 + " vs. " + playerImg(playerId2) + name2);
         document.getElementById("query-subtitle").innerHTML =
             (careerSeason == "career" ? "Career" : "Season") + " Statistics<br>" + 
             (seasonType == "all" ? "All" : seasonType == "RegularSeason" ? "Regular" : seasonType == "PostSeason" ? "Post" : seasonType == "AllStarSeason" ? "All-Star" : seasonType == "CollegeSeason" ? "College" : "Showcase") +
@@ -267,8 +272,13 @@ async function queryPageSetup() {
         }
 
         // Title
+        const teamId1 = teamNameToID.get(name1);
+        const teamId2 = mode == "find" ? null : teamNameToID.get(name2);
+        const teamImg = (id) => `<img src="https://cdn.nba.com/logos/nba/${id}/global/L/logo.svg" onerror="this.style.display='none'" style="height:60px; margin-right:10px; vertical-align:middle;">`;
         document.getElementById("query-title").innerHTML =
-            (mode == "find" ? name1 : (name1 + " vs. " + name2));
+            mode == "find"
+                ? (teamImg(teamId1) + name1)
+                : (teamImg(teamId1) + name1 + " vs. " + teamImg(teamId2) + name2);
         document.getElementById("query-subtitle").innerHTML = 
             (careerSeason == "career" ? "All-Time" : "Season") + " Statistics<br>" +
             (careerSeason == "career" ? "" : (mode == "find" ? timespan1 : (timespan1 + " vs. " + timespan2)));
