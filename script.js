@@ -845,7 +845,7 @@ async function getTeamStats() {
     document.getElementById("display-team-stats").innerHTML = teamImageHTML + innerHTML;
 
     // Adjust as needed
-    if (mode === "compare" && inputs[2] === "career") {
+    if (mode === "compare" && inputs[2] === "career" && document.getElementById("compare-line")) {
         document.getElementById("compare-line").style.height = document.getElementById("display-team-stats").offsetHeight.toString() + "px";
     }
     manageFooterBuffer(500 - document.getElementById("display-team-stats").offsetHeight);
