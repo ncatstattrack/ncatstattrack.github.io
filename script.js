@@ -1,4 +1,3 @@
-
 // Global Variables
 let mode = null;
 let subject = null;
@@ -583,37 +582,57 @@ function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, 
     if (careerSeason === "career") {
 
         for (let s = 0; s < (mode == "find" ? 1 : 2); s++) {
+            let categories = [];
             for (let i = 0; i < stats[s].resultSets.length; i++) {
                 let statSubset = stats[s].resultSets[i];
-                if (statSubset.name.indexOf("CareerTotals") != -1 && statSubset.rowSet.length != 0 && (seasonType === "all" || statSubset.name.indexOf(seasonType) != -1)
-                ){
-                    textHTML[s] += `<h3>${playerHeaderMap.get(statSubset.name)}</h3>`;
-                    textHTML[s] += `<p>Games Played: ${statSubset.rowSet[0][3]}</p>`;
-                    textHTML[s] += `<p>Games Started: ${statSubset.rowSet[0][4]}</p>`;
-                    textHTML[s] += `<p>Minutes Played: ${statSubset.rowSet[0][5]}</p>`;
-                    textHTML[s] += `<p>Field Goals Attempted: ${statSubset.rowSet[0][7]}</p>`;
-                    textHTML[s] += `<p>Field Goals Made: ${statSubset.rowSet[0][6]}</p>`;
-                    const fgPCT = (statSubset.rowSet[0][8] * 100).toFixed(2);
-                    textHTML[s] += `<p>Field Goal Percentage: ${fgPCT}%</p>`;
-                    textHTML[s] += `<p>Field Goals (3 Pointers) Attempted: ${statSubset.rowSet[0][10]}</p>`;
-                    textHTML[s] += `<p>Field Goals (3 Pointers) Made: ${statSubset.rowSet[0][9]}</p>`;
+                if (statSubset.name.indexOf("CareerTotals") != -1 && statSubset.rowSet.length != 0 && (seasonType === "all" || statSubset.name.indexOf(seasonType) != -1)) {
+                    const fgPCT  = (statSubset.rowSet[0][8]  * 100).toFixed(2);
                     const fg3PCT = (statSubset.rowSet[0][11] * 100).toFixed(2);
-                    textHTML[s] += `<p>Field Goal (3 Pointer) Percentage: ${fg3PCT}%</p>`;
-                    textHTML[s] += `<p>Free Throws Attempted: ${statSubset.rowSet[0][13]}</p>`;
-                    textHTML[s] += `<p>Free Throws Made: ${statSubset.rowSet[0][12]}</p>`;
-                    const ftPCT = (statSubset.rowSet[0][14] * 100).toFixed(2);
-                    textHTML[s] += `<p>Free Throw Percentage: ${ftPCT}%</p>`;
-                    textHTML[s] += `<p>Total Rebounds: ${statSubset.rowSet[0][17]}</p>`;
-                    textHTML[s] += `<p>Offensive Rebounds: ${statSubset.rowSet[0][15]}</p>`;
-                    textHTML[s] += `<p>Defensive Rebounds: ${statSubset.rowSet[0][16]}</p>`;
-                    textHTML[s] += `<p>Assists: ${statSubset.rowSet[0][18]}</p>`;
-                    textHTML[s] += `<p>Steals: ${statSubset.rowSet[0][19]}</p>`;
-                    textHTML[s] += `<p>Blocks: ${statSubset.rowSet[0][20]}</p>`;
-                    textHTML[s] += `<p>Turnovers: ${statSubset.rowSet[0][21]}</p>`;
-                    textHTML[s] += `<p>Personal Fouls: ${statSubset.rowSet[0][22]}</p>`;
-                    textHTML[s] += `<p>Points Scored: ${statSubset.rowSet[0][23]}</p>`;
-                    textHTML[s] += "<br>";
+                    const ftPCT  = (statSubset.rowSet[0][14] * 100).toFixed(2);
+                    const cards = [
+                        { label: "Games Played",    value: statSubset.rowSet[0][3] },
+                        { label: "Games Started",   value: statSubset.rowSet[0][4] },
+                        { label: "Minutes Played",  value: statSubset.rowSet[0][5] },
+                        { label: "FG Made",         value: statSubset.rowSet[0][6] },
+                        { label: "FG Attempted",    value: statSubset.rowSet[0][7] },
+                        { label: "FG%",             value: fgPCT + "%" },
+                        { label: "3PT Made",        value: statSubset.rowSet[0][9] },
+                        { label: "3PT Attempted",   value: statSubset.rowSet[0][10] },
+                        { label: "3PT%",            value: fg3PCT + "%" },
+                        { label: "FT Made",         value: statSubset.rowSet[0][12] },
+                        { label: "FT Attempted",    value: statSubset.rowSet[0][13] },
+                        { label: "FT%",             value: ftPCT + "%" },
+                        { label: "Offensive Reb",   value: statSubset.rowSet[0][15] },
+                        { label: "Defensive Reb",   value: statSubset.rowSet[0][16] },
+                        { label: "Total Rebounds",  value: statSubset.rowSet[0][17] },
+                        { label: "Assists",         value: statSubset.rowSet[0][18] },
+                        { label: "Steals",          value: statSubset.rowSet[0][19] },
+                        { label: "Blocks",          value: statSubset.rowSet[0][20] },
+                        { label: "Turnovers",       value: statSubset.rowSet[0][21] },
+                        { label: "Personal Fouls",  value: statSubset.rowSet[0][22] },
+                        { label: "Points Scored",   value: statSubset.rowSet[0][23] },
+                    ];
+                    categories.push({ name: playerHeaderMap.get(statSubset.name), cards });
                 }
+            }
+            if (categories.length > 0) {
+                const uid = `player-tabs-${s}`;
+                let tabBtns = `<div class="stat-tabs" id="${uid}">`;
+                categories.forEach((cat, idx) => {
+                    tabBtns += `<button class="stat-tab${idx === 0 ? ' active' : ''}" onclick="switchCareerTab('${uid}', ${idx})">${cat.name}</button>`;
+                });
+                tabBtns += `</div>`;
+                let panels = `<div class="stat-panels">`;
+                categories.forEach((cat, idx) => {
+                    panels += `<div class="stat-panel${idx === 0 ? ' active' : ''}" data-tab="${uid}-${idx}">`;
+                    panels += `<div class="stat-cards">`;
+                    cat.cards.forEach(card => {
+                        panels += `<div class="stat-card"><span class="stat-card-label">${card.label}</span><span class="stat-card-value">${card.value}</span></div>`;
+                    });
+                    panels += `</div></div>`;
+                });
+                panels += `</div>`;
+                textHTML[s] = tabBtns + panels;
             }
         }
     
@@ -887,28 +906,36 @@ function compileTeamStatistics(teamName1, teamName2, careerSeason, from1, to1, f
     if (careerSeason === "career") {
 
         for (let s = 0; s < (mode == "find" ? 1 : 2); s++) {
-            textHTML[s] = `<p>League Champions: ${allTimeData[s][0]}</p>`;
-            textHTML[s] += `<p>Finals Appearances: ${allTimeData[s][1]}</p>`;
-            const winPCT = ((allTimeData[s][3] / allTimeData[s][2])* 100).toFixed(2);
-            textHTML[s] += `<p>Win Percentage: ${winPCT}%</p>`;
-            textHTML[s] += `<p>Games Played: ${allTimeData[s][2]}</p>`;
-            textHTML[s] += `<p>Games Won: ${allTimeData[s][3]}</p>`;
-            textHTML[s] += `<p>Games Lost: ${allTimeData[s][4]}</p>`;
-            textHTML[s] += `<p>Field Goals Made: ${allTimeData[s][5]}</p>`;
-            textHTML[s] += `<p>Field Goals Attempted: ${allTimeData[s][6]}</p>`;
-            textHTML[s] += `<p>Field Goals (3 Pointers) Made: ${allTimeData[s][7]}</p>`;
-            textHTML[s] += `<p>Field Goals (3 Pointers) Attempted: ${allTimeData[s][8]}</p>`;
-            textHTML[s] += `<p>Free Throws Made: ${allTimeData[s][9]}</p>`;
-            textHTML[s] += `<p>Free Throws Attempted: ${allTimeData[s][10]}</p>`;
-            textHTML[s] += `<p>Offensive Rebounds: ${allTimeData[s][11]}</p>`;
-            textHTML[s] += `<p>Defensive Rebounds: ${allTimeData[s][12]}</p>`;
-            textHTML[s] += `<p>Total Rebounds: ${allTimeData[s][13]}</p>`;
-            textHTML[s] += `<p>Assists: ${allTimeData[s][14]}</p>`;
-            textHTML[s] += `<p>Personal Fouls: ${allTimeData[s][15]}</p>`;
-            textHTML[s] += `<p>Steals: ${allTimeData[s][16]}</p>`;
-            textHTML[s] += `<p>Turnovers: ${allTimeData[s][17]}</p>`;
-            textHTML[s] += `<p>Blocks: ${allTimeData[s][18]}</p>`;
-            textHTML[s] += `<p>Points Scored: ${allTimeData[s][19]}</p>`;
+            const winPCT = ((allTimeData[s][3] / allTimeData[s][2]) * 100).toFixed(2);
+            const cards = [
+                { label: "League Champions",   value: allTimeData[s][0] },
+                { label: "Finals Appearances", value: allTimeData[s][1] },
+                { label: "Win %",              value: winPCT + "%" },
+                { label: "Games Played",       value: allTimeData[s][2] },
+                { label: "Games Won",          value: allTimeData[s][3] },
+                { label: "Games Lost",         value: allTimeData[s][4] },
+                { label: "FG Made",            value: allTimeData[s][5] },
+                { label: "FG Attempted",       value: allTimeData[s][6] },
+                { label: "3PT Made",           value: allTimeData[s][7] },
+                { label: "3PT Attempted",      value: allTimeData[s][8] },
+                { label: "FT Made",            value: allTimeData[s][9] },
+                { label: "FT Attempted",       value: allTimeData[s][10] },
+                { label: "Offensive Reb",      value: allTimeData[s][11] },
+                { label: "Defensive Reb",      value: allTimeData[s][12] },
+                { label: "Total Rebounds",     value: allTimeData[s][13] },
+                { label: "Assists",            value: allTimeData[s][14] },
+                { label: "Personal Fouls",     value: allTimeData[s][15] },
+                { label: "Steals",             value: allTimeData[s][16] },
+                { label: "Turnovers",          value: allTimeData[s][17] },
+                { label: "Blocks",             value: allTimeData[s][18] },
+                { label: "Points Scored",      value: allTimeData[s][19] },
+            ];
+            let cardsHTML = '<div class="stat-cards">';
+            cards.forEach(card => {
+                cardsHTML += `<div class="stat-card"><span class="stat-card-label">${card.label}</span><span class="stat-card-value">${card.value}</span></div>`;
+            });
+            cardsHTML += '</div>';
+            textHTML[s] = cardsHTML;
         }
 
     // Season stats
@@ -1105,6 +1132,18 @@ function getInput(nameCount = 0, careerSeason = false, fromToCount = 0, seasonTy
     // Return
     return returnArray;
 
+}
+
+// Switch career stat tabs
+function switchCareerTab(uid, idx) {
+    const tabContainer = document.getElementById(uid);
+    tabContainer.querySelectorAll('.stat-tab').forEach((btn, i) => {
+        btn.classList.toggle('active', i === idx);
+    });
+    const panels = tabContainer.nextElementSibling.querySelectorAll('.stat-panel');
+    panels.forEach((panel, i) => {
+        panel.classList.toggle('active', i === idx);
+    });
 }
 
 // Manages the buffer between content and footer
