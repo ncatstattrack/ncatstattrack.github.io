@@ -1043,11 +1043,10 @@ function compileTeamStatistics(teamName1, teamName2, careerSeason, from1, to1, f
     } else if (mode === "find" && careerSeason === "career") {
         innerHTML = `<table class="stat-table"><tr><td>${textHTML[0]}</td></tr></table>`;
     } else if (mode === "compare" && careerSeason === "career") {
-        innerHTML = `<table class="stat-table"><tr>
-        <td>${textHTML[0]}</td>
-        <td><div class="compare-line" id="compare-line"></div></td>
-        <td>${textHTML[1]}</td>
-        </tr></table>`;
+        innerHTML = `<table class="stat-table">
+        <tr><td>${textHTML[0]}</td></tr>
+        <tr><td>${textHTML[1]}</td></tr>
+        </table>`;
     }
     return innerHTML;
 
