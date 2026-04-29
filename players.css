@@ -472,13 +472,29 @@ hr {
   line-height: 1;
 }
 
-/* ── Force stat-table to not constrain cards ── */
-table.stat-table,
-table.stat-table tr,
-table.stat-table td {
-  display: block !important;
+/* ── Season table first-row header cells (generated as td not th) ── */
+.season-table tr:first-child td {
+  background: var(--surface2) !important;
+  color: var(--text-dim) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  font-family: var(--font) !important;
+}
+
+/* ── Outer stat-table wrapper — keep as table, only reset borders/padding ── */
+table.stat-table {
+  display: table !important;
   width: 100% !important;
   border: none !important;
+  border-collapse: collapse !important;
+  margin: 0 auto 40px !important;
   padding: 0 !important;
-  margin: 0 !important;
+}
+
+table.stat-table > tbody > tr > td {
+  border: none !important;
+  padding: 0 !important;
+  vertical-align: top;
 }
