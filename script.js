@@ -160,6 +160,37 @@ async function loginUser() {
 
 }
 
+// User logout
+function logoutUser() {
+
+    sessionStorage.setItem("logged-in", "false");
+    window.location.href = "index.html";
+
+}
+
+// Delete user
+async function deleteUser() {
+    
+    if (document.getElementById("delete-account").style.display == "none") {
+        document.getElementById("delete-account").style.display = "block";
+    } else {
+        if (document.getElementById("delete-input").value == "DELETE") {
+            let result = await deleteUser();
+            if (result == "Account Sucessfully Deleted") {
+                document.getElementById("account-block").style.display = "none";
+                document.getElementById("deletion-success").style.display = "block";
+                sessionStorage.setItem("logged-in", "false");
+                loginLink();
+                await wait(2000);
+                window.location.href = "index.html";
+            } else {
+                document.getElementById("delete-error").innerHTML = result;
+            }
+        }
+    }
+
+}
+
 // Validate username and password
 function validUserPass(username, password) {
 
@@ -254,9 +285,6 @@ async function queryPageSetup() {
         document.getElementById("display-stats").innerHTML = innerHTML;
 
         // Adjust as needed
-        if (mode === "compare" && careerSeason === "career") {
-            document.getElementById("compare-line").style.height = document.getElementById("display-stats").offsetHeight.toString() + "px";
-        }
         manageFooterBuffer(500 - document.getElementById("display-stats").offsetHeight);
 
     } else if (subject === "team") {
@@ -297,9 +325,6 @@ async function queryPageSetup() {
         document.getElementById("display-stats").innerHTML = innerHTML;
 
         // Adjust as needed
-        if (mode === "compare" && careerSeason === "career") {
-            document.getElementById("compare-line").style.height = document.getElementById("display-stats").offsetHeight.toString() + "px";
-        }
         manageFooterBuffer(500 - document.getElementById("display-stats").offsetHeight);
 
     }
@@ -423,7 +448,7 @@ async function clearFavoriteQueries() {
 // Load favorites
 async function loadFavoriteQueries() {
 
-    if (sessionStorage.getItem("logged-in") == null) {
+    if (sessionStorage.getItem("logged-in") == null || sessionStorage.getItem("logged-in") == 'false') {
         document.getElementById("favorite-queries").innerHTML = "Need to make an account or sign in to show favorites.";
     } else {
         
@@ -555,9 +580,6 @@ async function getPlayerStats() {
     document.getElementById("display-player-stats").innerHTML = imageHTML + innerHTML;
 
     // Adjust as needed
-    if (mode === "compare" && inputs[5] === "career") {
-        document.getElementById("compare-line").style.height = document.getElementById("display-player-stats").offsetHeight.toString() + "px";
-    }
     manageFooterBuffer(500 - document.getElementById("display-player-stats").offsetHeight);
 
     // Set current query
@@ -778,7 +800,6 @@ function compilePlayerStatistics(playerName1, playerName2, careerSeason, from1, 
     } else if (mode === "compare" && careerSeason === "career") {
         innerHTML = `<table class="stat-table"><tr>
         <td>${textHTML[0]}</td>
-        <td><div class="compare-line" id="compare-line"></div></td>
         <td>${textHTML[1]}</td>
         </tr></table>`;
     }
@@ -845,9 +866,6 @@ async function getTeamStats() {
     document.getElementById("display-team-stats").innerHTML = teamImageHTML + innerHTML;
 
     // Adjust as needed
-    if (mode === "compare" && inputs[2] === "career" && document.getElementById("compare-line")) {
-        document.getElementById("compare-line").style.height = document.getElementById("display-team-stats").offsetHeight.toString() + "px";
-    }
     manageFooterBuffer(500 - document.getElementById("display-team-stats").offsetHeight);
 
     // Set current query

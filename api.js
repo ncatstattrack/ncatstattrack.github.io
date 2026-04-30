@@ -177,7 +177,7 @@ async function userLogin(username, password) {
         });
         const data = await response.json()
         if (response.ok) {
-            sessionStorage.setItem("logged-in", true);
+            sessionStorage.setItem("logged-in", "true");
             return "Successful Login";
         } else {
             if (response.status == 400) {
@@ -187,6 +187,30 @@ async function userLogin(username, password) {
         }
     } catch (error) {
         console.error("Login error:", error);
+    }
+    
+}
+
+// Logs user in
+async function userDelete() {
+
+    try {
+        const response = await fetch(`${base}/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...default_headers
+            },
+            credentials: 'include'
+        });
+        const data = await response.json()
+        if (response.ok) {
+            return "Account Sucessfully Deleted";
+        } else {
+            return "No Account Found To Delete";
+        }
+    } catch (error) {
+        console.error("Deletion error:", error);
     }
     
 }
