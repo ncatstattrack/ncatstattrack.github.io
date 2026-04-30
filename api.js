@@ -191,11 +191,35 @@ async function userLogin(username, password) {
     
 }
 
-// Logs user in
+// Deletes user
+async function userInfo() {
+
+    try {
+        const response = await fetch(`${base}/user-info`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                ...default_headers
+            },
+            credentials: 'include'
+        });
+        const data = await response.json()
+        if (response.ok) {
+            return data;
+        } else {
+            return "No Account Found";
+        }
+    } catch (error) {
+        console.error("Fetch error:", error);
+    }
+    
+}
+
+// Deletes user
 async function userDelete() {
 
     try {
-        const response = await fetch(`${base}/login`, {
+        const response = await fetch(`${base}/delete-user`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

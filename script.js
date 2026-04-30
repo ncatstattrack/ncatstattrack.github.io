@@ -60,6 +60,9 @@ window.addEventListener("load", function() {
         loadRecentQueries();
         loadFavoriteQueries();
     }
+    if (currentURL.indexOf("/account.html") != -1) {
+        getUserInfo();
+    }
     if (currentURL.indexOf("/players.html") != -1) {
         getPlayerInfo();
     }
@@ -168,6 +171,20 @@ function logoutUser() {
 
 }
 
+// Get user info
+async function getUserInfo() {
+    
+    let info = await userInfo();
+    if (info == "No Account Found") {
+        sessionStorage.setItem("logged-in", "false");
+        window.location.href = "index.html";
+    } else {
+        document.getElementById("display-username").innerHTML = info['result'][0];
+        document.getElementById("account-created").innerHTML = info['result'][1];
+    }
+
+}
+
 // Delete user
 async function deleteUser() {
     
@@ -175,13 +192,11 @@ async function deleteUser() {
         document.getElementById("delete-account").style.display = "block";
     } else {
         if (document.getElementById("delete-input").value == "DELETE") {
-            let result = await deleteUser();
+            let result = await userDelete();
             if (result == "Account Sucessfully Deleted") {
                 document.getElementById("account-block").style.display = "none";
                 document.getElementById("deletion-success").style.display = "block";
                 sessionStorage.setItem("logged-in", "false");
-                loginLink();
-                await wait(2000);
                 window.location.href = "index.html";
             } else {
                 document.getElementById("delete-error").innerHTML = result;
